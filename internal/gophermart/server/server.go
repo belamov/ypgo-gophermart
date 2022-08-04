@@ -7,14 +7,16 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/handlers"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 )
 
 type Server struct {
 	config *config.Config
+	auth   services.Authenticator
 }
 
 func (s *Server) Run() {
-	r := handlers.NewRouter()
+	r := handlers.NewRouter(s.auth)
 
 	httpServer := &http.Server{
 		Addr:              s.config.RunAddress,
@@ -24,8 +26,9 @@ func (s *Server) Run() {
 	log.Fatal(httpServer.ListenAndServe())
 }
 
-func New(config *config.Config) *Server {
+func New(config *config.Config, auth services.Authenticator) *Server {
 	return &Server{
 		config: config,
+		auth:   auth,
 	}
 }
