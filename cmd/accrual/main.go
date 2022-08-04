@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 )
 
