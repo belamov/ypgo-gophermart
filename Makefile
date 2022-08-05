@@ -28,7 +28,10 @@ up: build ## Run app
 	$(docker_compose_bin) --file "$(docker_compose_yml)" up
 
 mock: ## Generate mocks
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) mockgen -destination=internal/gophermart/mocks/auth.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services Authenticator
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) bash -c "\
+ 		mockgen -destination=internal/gophermart/mocks/auth.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services Authenticator && \
+		mockgen -destination=internal/gophermart/mocks/users.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage Users \
+		"
 
 lint:
 	$(docker_bin) run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.46.2 golangci-lint run
