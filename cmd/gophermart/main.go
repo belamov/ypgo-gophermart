@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 
-	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
-
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/server"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 )
 
 func main() {

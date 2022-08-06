@@ -9,6 +9,8 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -27,7 +29,7 @@ func NewUserRepository(dsn string) (*UsersRepository, error) {
 		return nil, err
 	}
 
-	if err = runMigrations(dsn, "./migrations"); err != nil {
+	if err = runMigrations(dsn, "file://./migrations"); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +58,24 @@ func runMigrations(dsn string, migrationsPath string) error {
 	return nil
 }
 
-func (u *UsersRepository) CreateNew(login string, password string) (models.User, error) {
-	// TODO: implement
-	panic("implement me")
+func (repo *UsersRepository) CreateNew(login string, password string) (models.User, error) {
+	user := models.User{
+		Login:          login,
+		HashedPassword: password,
+	}
+
+	_, err := repo.conn.Exec(
+		context.Background(),
+		"insert into users (login, password) values ($1, $2)",
+		user.Login,
+		user.HashedPassword,
+	)
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.UniqueViolation {
+			return models.User{}, NewNotUniqueError("login", err)
+		}
+	}
+	return user, err
 }
