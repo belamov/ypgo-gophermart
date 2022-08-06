@@ -45,3 +45,23 @@ func NewLoginTakenError(login string, err error) error {
 		Login: login,
 	}
 }
+
+type InvalidCredentialsError struct {
+	Err         error
+	Credentials models.Credentials
+}
+
+func (err *InvalidCredentialsError) Error() string {
+	return fmt.Sprintf("incorrect password or login: %+v", err.Credentials)
+}
+
+func (err *InvalidCredentialsError) Unwrap() error {
+	return err.Err
+}
+
+func NewInvalidCredentialsError(credentials models.Credentials, err error) error {
+	return &InvalidCredentialsError{
+		Err:         err,
+		Credentials: credentials,
+	}
+}

@@ -11,6 +11,7 @@ import (
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestAuth_Register(t *testing.T) {
@@ -68,6 +69,70 @@ func TestAuth_Register(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, registeredUser.Login, tt.credentials.Login)
+			}
+		})
+	}
+}
+
+func TestAuth_Login(t *testing.T) {
+	validCredentials := models.Credentials{Login: "login", Password: "password"}
+	invalidLogin := models.Credentials{Login: "invalid", Password: "password"}
+	invalidPassword := models.Credentials{Login: "login", Password: "invalid"}
+	tests := []struct {
+		name        string
+		credentials models.Credentials
+		want        models.User
+		wantErr     bool
+	}{
+		{
+			name:        "it logins user",
+			credentials: validCredentials,
+			want: models.User{
+				Login: "login",
+			},
+			wantErr: false,
+		},
+		{
+			name:        "it doesnt login user with invalid login",
+			credentials: invalidLogin,
+			want:        models.User{},
+			wantErr:     true,
+		},
+		{
+			name:        "it doesnt login user with invalid password",
+			credentials: invalidPassword,
+			want:        models.User{},
+			wantErr:     true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockUsers := mocks.NewMockUsers(ctrl)
+
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(validCredentials.Password), bcrypt.DefaultCost)
+			assert.NoError(t, err)
+			mockUsers.EXPECT().FindByLogin(validCredentials.Login).
+				Return(models.User{ID: "id", Login: validCredentials.Login, HashedPassword: string(hashedPassword)}, nil).
+				AnyTimes()
+			mockUsers.EXPECT().FindByLogin(invalidLogin.Login).
+				Return(models.User{}, nil).
+				AnyTimes()
+
+			a := &JWTAuth{
+				UserRepo: mockUsers,
+			}
+			loggedUser, err := a.Login(tt.credentials)
+			if tt.wantErr {
+				assert.Error(t, err)
+				var invalidCredentialsError *InvalidCredentialsError
+				assert.ErrorAs(t, err, &invalidCredentialsError)
+				fmt.Println(invalidCredentialsError.Error())
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, loggedUser.Login, tt.credentials.Login)
 			}
 		})
 	}

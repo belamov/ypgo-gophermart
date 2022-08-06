@@ -48,3 +48,18 @@ func (mr *MockUsersMockRecorder) CreateNew(arg0, arg1 interface{}) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockUsers)(nil).CreateNew), arg0, arg1)
 }
+
+// FindByLogin mocks base method.
+func (m *MockUsers) FindByLogin(arg0 string) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByLogin", arg0)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByLogin indicates an expected call of FindByLogin.
+func (mr *MockUsersMockRecorder) FindByLogin(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByLogin", reflect.TypeOf((*MockUsers)(nil).FindByLogin), arg0)
+}

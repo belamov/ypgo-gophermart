@@ -21,6 +21,7 @@ func NewRouter(auth services.Authenticator) chi.Router {
 	h := NewHandler(auth)
 
 	r.Post("/api/user/register", h.Register)
+	r.Post("/api/user/login", h.Login)
 
 	return r
 }

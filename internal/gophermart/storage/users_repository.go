@@ -16,6 +16,7 @@ import (
 
 type Users interface {
 	CreateNew(login string, password string) (models.User, error)
+	FindByLogin(login string) (models.User, error)
 }
 
 type UsersRepository struct {
@@ -78,4 +79,9 @@ func (repo *UsersRepository) CreateNew(login string, password string) (models.Us
 		}
 	}
 	return user, err
+}
+
+func (repo *UsersRepository) FindByLogin(login string) (models.User, error) {
+	// TODO implement me
+	panic("implement me")
 }

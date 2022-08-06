@@ -100,3 +100,92 @@ func TestHandler_Register(t *testing.T) {
 		})
 	}
 }
+
+func TestHandler_Login(t *testing.T) {
+	user := models.User{Login: "login", HashedPassword: "hashed password"}
+	validCredentials := models.Credentials{Login: "login", Password: "password"}
+	invalidCredentials := models.Credentials{Login: "invalid", Password: "password"}
+	type wantHeader struct {
+		name  string
+		value string
+	}
+	type want struct {
+		statusCode int
+		body       string
+		header     wantHeader
+	}
+	tests := []struct {
+		name string
+		want want
+		body string
+	}{
+		{
+			name: "with valid credentials",
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "",
+				header:     wantHeader{name: "Authorization", value: "Bearer token"},
+			},
+			body: "{\"login\": \"login\", \"password\":\"password\"}",
+		},
+		{
+			name: "without login",
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "invalid credentials: login required",
+			},
+			body: "{\"password\":\"password\"}",
+		},
+		{
+			name: "without password",
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "invalid credentials: password required",
+			},
+			body: "{\"login\": \"login\"}",
+		},
+		{
+			name: "with invalid json",
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "cannot decode json",
+			},
+			body: "{login: login, password}",
+		},
+		{
+			name: "with invalid credentials",
+			want: want{
+				statusCode: http.StatusUnauthorized,
+				body:       "incorrect login or password",
+			},
+			body: "{\"login\": \"invalid\", \"password\":\"password\"}",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockAuth := mocks.NewMockAuthenticator(ctrl)
+
+			mockAuth.EXPECT().Login(validCredentials).Return(user, nil).AnyTimes()
+			mockAuth.EXPECT().Login(invalidCredentials).Return(models.User{}, services.NewInvalidCredentialsError(invalidCredentials, nil)).AnyTimes()
+			mockAuth.EXPECT().GenerateToken(user).Return("token", nil).AnyTimes()
+
+			r := NewRouter(mockAuth)
+			ts := httptest.NewServer(r)
+			defer ts.Close()
+
+			result, body := testRequest(t, ts, http.MethodPost, "/api/user/login", tt.body, nil)
+			defer result.Body.Close()
+
+			assert.Equal(t, tt.want.statusCode, result.StatusCode)
+			assert.Equal(t, tt.want.body, body)
+
+			if tt.want.header.name != "" {
+				assert.Equal(t, tt.want.header.value, result.Header.Get(tt.want.header.name))
+			}
+		})
+	}
+}

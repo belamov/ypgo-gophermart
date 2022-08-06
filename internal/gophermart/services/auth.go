@@ -13,6 +13,7 @@ import (
 type Authenticator interface {
 	Register(credentials models.Credentials) (models.User, error)
 	GenerateToken(user models.User) (string, error)
+	Login(credentials models.Credentials) (models.User, error)
 }
 
 type JWTAuth struct {
@@ -43,6 +44,23 @@ func (a *JWTAuth) Register(credentials models.Credentials) (models.User, error) 
 
 	if err != nil {
 		return models.User{}, NewRegistrationError(credentials, err)
+	}
+
+	return user, nil
+}
+
+func (a *JWTAuth) Login(credentials models.Credentials) (models.User, error) {
+	user, err := a.UserRepo.FindByLogin(credentials.Login)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	if user.ID == "" {
+		return models.User{}, NewInvalidCredentialsError(credentials, err)
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(credentials.Password)); err != nil {
+		return models.User{}, NewInvalidCredentialsError(credentials, err)
 	}
 
 	return user, nil

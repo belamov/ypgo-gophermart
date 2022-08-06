@@ -49,6 +49,21 @@ func (mr *MockAuthenticatorMockRecorder) GenerateToken(arg0 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthenticator)(nil).GenerateToken), arg0)
 }
 
+// Login mocks base method.
+func (m *MockAuthenticator) Login(arg0 models.Credentials) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", arg0)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockAuthenticatorMockRecorder) Login(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuthenticator)(nil).Login), arg0)
+}
+
 // Register mocks base method.
 func (m *MockAuthenticator) Register(arg0 models.Credentials) (models.User, error) {
 	m.ctrl.T.Helper()
