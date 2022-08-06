@@ -15,18 +15,26 @@ type Authenticator interface {
 	GenerateToken(user models.User) (string, error)
 }
 
-type Auth struct {
-	userRepo  storage.Users
+type JWTAuth struct {
+	UserRepo  storage.Users
 	tokenAuth *jwtauth.JWTAuth
 }
 
-func (a *Auth) Register(credentials models.Credentials) (models.User, error) {
+func NewAuth(repo storage.Users, secret string) *JWTAuth {
+	jwtAuth := jwtauth.New("HS256", []byte(secret), nil)
+	return &JWTAuth{
+		UserRepo:  repo,
+		tokenAuth: jwtAuth,
+	}
+}
+
+func (a *JWTAuth) Register(credentials models.Credentials) (models.User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return models.User{}, NewRegistrationError(credentials, err)
 	}
 
-	user, err := a.userRepo.CreateNew(credentials.Login, string(hash))
+	user, err := a.UserRepo.CreateNew(credentials.Login, string(hash))
 
 	var notUniqueError *storage.NotUniqueError
 	if errors.As(err, &notUniqueError) {
@@ -40,7 +48,7 @@ func (a *Auth) Register(credentials models.Credentials) (models.User, error) {
 	return user, nil
 }
 
-func (a *Auth) GenerateToken(user models.User) (string, error) {
+func (a *JWTAuth) GenerateToken(user models.User) (string, error) {
 	claims, err := a.getTokenClaims(user)
 	if err != nil {
 		return "", err
@@ -53,7 +61,7 @@ func (a *Auth) GenerateToken(user models.User) (string, error) {
 	return tokenString, nil
 }
 
-func (a *Auth) getTokenClaims(user models.User) (map[string]interface{}, error) {
+func (a *JWTAuth) getTokenClaims(user models.User) (map[string]interface{}, error) {
 	claims := map[string]interface{}{}
 
 	jwtauth.SetIssuedNow(claims)

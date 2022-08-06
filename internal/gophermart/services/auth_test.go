@@ -9,7 +9,6 @@ import (
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
-	"github.com/go-chi/jwtauth"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -56,8 +55,8 @@ func TestAuth_Register(t *testing.T) {
 				Return(models.User{}, storage.NewNotUniqueError("login", errors.New(""))).
 				AnyTimes()
 
-			a := &Auth{
-				userRepo: mockUsers,
+			a := &JWTAuth{
+				UserRepo: mockUsers,
 			}
 			registeredUser, err := a.Register(tt.credentials)
 			if tt.wantErr {
@@ -92,17 +91,14 @@ func TestAuth_GenerateToken(t *testing.T) {
 		},
 	}
 	key := "secret"
-	jwtAuth := jwtauth.New("HS256", []byte(key), nil)
-	auth := &Auth{
-		tokenAuth: jwtAuth,
-	}
+	auth := NewAuth(nil, key)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tokenString, err := auth.GenerateToken(tt.user)
 			if !tt.wantErr {
 				assert.NoError(t, err)
 
-				token, err := jwtAuth.Decode(tokenString)
+				token, err := auth.tokenAuth.Decode(tokenString)
 				assert.NoError(t, err)
 
 				parsedToken, ok := token.Get("user_id")

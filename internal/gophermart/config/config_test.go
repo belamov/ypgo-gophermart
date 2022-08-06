@@ -12,5 +12,6 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, "http://localhost:8080", c.RunAddress)
 		assert.Equal(t, "", c.AccrualSystemAddress)
 		assert.Equal(t, "", c.DatabaseURI)
+		assert.Equal(t, "secret", c.JWTSecret)
 	})
 }

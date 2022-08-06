@@ -2,18 +2,26 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/server"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 )
 
 func main() {
 	cfg := config.New()
-	auth := &services.Auth{}
 
 	cfg.Init()
 	flag.Parse()
+
+	userRepo, err := storage.NewUserRepository(cfg.DatabaseURI)
+	if err != nil {
+		panic(fmt.Sprintf("could not initialize user repo: %v", err))
+	}
+
+	auth := services.NewAuth(userRepo, cfg.JWTSecret)
 
 	srv := server.New(cfg, auth)
 
