@@ -70,3 +70,24 @@ func (s *UsersRepositoryTestSuite) TestUniqueLogin() {
 	assert.Equal(s.T(), "login", notUniqueError.Field)
 	assert.False(s.T(), s.exists(createdUser))
 }
+
+func (s *UsersRepositoryTestSuite) TestFindByLogin() {
+	credentials := models.Credentials{
+		Login:    "login",
+		Password: "hash",
+	}
+	existingUser, err := s.repo.CreateNew(credentials.Login, credentials.Password)
+	require.NoError(s.T(), err)
+	assert.True(s.T(), s.exists(existingUser))
+
+	fetchedUser, err := s.repo.FindByLogin(credentials.Login)
+	require.NoError(s.T(), err)
+	assert.Equal(s.T(), existingUser.ID, fetchedUser.ID)
+	assert.Equal(s.T(), existingUser.Login, fetchedUser.Login)
+	assert.Equal(s.T(), existingUser.HashedPassword, fetchedUser.HashedPassword)
+
+	nonExistingLogin := "non existing"
+	notFoundUser, err := s.repo.FindByLogin(nonExistingLogin)
+	require.NoError(s.T(), err)
+	assert.Equal(s.T(), models.User{}, notFoundUser)
+}

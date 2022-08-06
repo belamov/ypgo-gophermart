@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -115,7 +117,7 @@ func TestAuth_Login(t *testing.T) {
 			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(validCredentials.Password), bcrypt.DefaultCost)
 			assert.NoError(t, err)
 			mockUsers.EXPECT().FindByLogin(validCredentials.Login).
-				Return(models.User{ID: "id", Login: validCredentials.Login, HashedPassword: string(hashedPassword)}, nil).
+				Return(models.User{ID: 1, Login: validCredentials.Login, HashedPassword: string(hashedPassword)}, nil).
 				AnyTimes()
 			mockUsers.EXPECT().FindByLogin(invalidLogin.Login).
 				Return(models.User{}, nil).
@@ -146,7 +148,7 @@ func TestAuth_GenerateToken(t *testing.T) {
 	}{
 		{
 			name:    "it generates token with correct user_id",
-			user:    models.User{ID: "user id"},
+			user:    models.User{ID: 1},
 			wantErr: false,
 		},
 		{
@@ -166,10 +168,11 @@ func TestAuth_GenerateToken(t *testing.T) {
 				token, err := auth.tokenAuth.Decode(tokenString)
 				assert.NoError(t, err)
 
-				parsedToken, ok := token.Get("user_id")
+				userClaim, ok := token.Get("user_id")
 				assert.True(t, ok)
 
-				parsedTokenString := fmt.Sprintf("%v", parsedToken)
+				parsedTokenString, err := strconv.Atoi(fmt.Sprintf("%v", userClaim))
+				require.NoError(t, err)
 				assert.Equal(t, tt.user.ID, parsedTokenString)
 
 				assert.Greater(t, token.Expiration(), time.Now())

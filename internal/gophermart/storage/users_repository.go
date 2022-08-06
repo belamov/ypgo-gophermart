@@ -65,12 +65,12 @@ func (repo *UsersRepository) CreateNew(login string, password string) (models.Us
 		HashedPassword: password,
 	}
 
-	_, err := repo.conn.Exec(
+	err := repo.conn.QueryRow(
 		context.Background(),
-		"insert into users (login, password) values ($1, $2)",
+		"insert into users (login, password) values ($1, $2) returning id",
 		user.Login,
 		user.HashedPassword,
-	)
+	).Scan(&user.ID)
 
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
@@ -82,6 +82,16 @@ func (repo *UsersRepository) CreateNew(login string, password string) (models.Us
 }
 
 func (repo *UsersRepository) FindByLogin(login string) (models.User, error) {
-	// TODO implement me
-	panic("implement me")
+	var user models.User
+	err := repo.conn.QueryRow(
+		context.Background(),
+		"select id, login, password from users where login=$1",
+		login,
+	).Scan(&user.ID, &user.Login, &user.HashedPassword)
+
+	if err == pgx.ErrNoRows {
+		return models.User{}, nil
+	}
+
+	return user, err
 }

@@ -55,7 +55,7 @@ func (a *JWTAuth) Login(credentials models.Credentials) (models.User, error) {
 		return models.User{}, err
 	}
 
-	if user.ID == "" {
+	if user.ID == 0 {
 		return models.User{}, NewInvalidCredentialsError(credentials, err)
 	}
 
@@ -90,7 +90,7 @@ func (a *JWTAuth) getTokenClaims(user models.User) (map[string]interface{}, erro
 	}
 	jwtauth.SetExpiryIn(claims, duration)
 
-	if user.ID == "" {
+	if user.ID == 0 {
 		return nil, errors.New("user id is required")
 	}
 	claims["user_id"] = user.ID
