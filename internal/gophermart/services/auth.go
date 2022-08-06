@@ -2,9 +2,11 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
+	"github.com/go-chi/jwtauth"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,7 +16,8 @@ type Authenticator interface {
 }
 
 type Auth struct {
-	userRepo storage.Users
+	userRepo  storage.Users
+	tokenAuth *jwtauth.JWTAuth
 }
 
 func (a *Auth) Register(credentials models.Credentials) (models.User, error) {
@@ -38,6 +41,33 @@ func (a *Auth) Register(credentials models.Credentials) (models.User, error) {
 }
 
 func (a *Auth) GenerateToken(user models.User) (string, error) {
-	// TODO: implement
-	return "", nil
+	claims, err := a.getTokenClaims(user)
+	if err != nil {
+		return "", err
+	}
+
+	_, tokenString, err := a.tokenAuth.Encode(claims)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func (a *Auth) getTokenClaims(user models.User) (map[string]interface{}, error) {
+	claims := map[string]interface{}{}
+
+	jwtauth.SetIssuedNow(claims)
+
+	duration, err := time.ParseDuration("10h")
+	if err != nil {
+		return nil, err
+	}
+	jwtauth.SetExpiryIn(claims, duration)
+
+	if user.ID == "" {
+		return nil, errors.New("user id is required")
+	}
+	claims["user_id"] = user.ID
+
+	return claims, nil
 }
