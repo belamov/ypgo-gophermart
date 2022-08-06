@@ -7,19 +7,15 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler_Register(t *testing.T) {
-	user := models.User{
-		Login:          "login",
-		HashedPassword: "hashed password",
-	}
-	validCredentials := models.Credentials{
-		Login:    "login",
-		Password: "password",
-	}
+	user := models.User{Login: "login", HashedPassword: "hashed password"}
+	validCredentials := models.Credentials{Login: "login", Password: "password"}
+	takenCredentials := models.Credentials{Login: "taken", Password: "password"}
 	type wantHeader struct {
 		name  string
 		value string
@@ -67,6 +63,14 @@ func TestHandler_Register(t *testing.T) {
 			},
 			body: "{login: login, password}",
 		},
+		{
+			name: "with taken login",
+			want: want{
+				statusCode: http.StatusConflict,
+				body:       "login is taken",
+			},
+			body: "{\"login\": \"taken\", \"password\":\"password\"}",
+		},
 	}
 
 	for _, tt := range tests {
@@ -77,6 +81,7 @@ func TestHandler_Register(t *testing.T) {
 			mockAuth := mocks.NewMockAuthenticator(ctrl)
 
 			mockAuth.EXPECT().Register(validCredentials).Return(user, nil).AnyTimes()
+			mockAuth.EXPECT().Register(takenCredentials).Return(models.User{}, services.NewLoginTakenError(takenCredentials.Login, nil)).AnyTimes()
 			mockAuth.EXPECT().GenerateToken(user).Return("token", nil).AnyTimes()
 
 			r := NewRouter(mockAuth)

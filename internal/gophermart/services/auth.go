@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 	"golang.org/x/crypto/bcrypt"
@@ -18,12 +20,18 @@ type Auth struct {
 func (a *Auth) Register(credentials models.Credentials) (models.User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, NewRegistrationError(credentials, err)
 	}
 
 	user, err := a.userRepo.CreateNew(credentials.Login, string(hash))
+
+	var notUniqueError *storage.NotUniqueError
+	if errors.As(err, &notUniqueError) {
+		return models.User{}, NewLoginTakenError(credentials.Login, err)
+	}
+
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, NewRegistrationError(credentials, err)
 	}
 
 	return user, nil

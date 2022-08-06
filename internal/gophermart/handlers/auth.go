@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 )
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +30,13 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := h.auth.Register(credentials)
+
+	var loginTakenError *services.LoginTakenError
+	if errors.As(err, &loginTakenError) {
+		http.Error(w, "login is taken", http.StatusConflict)
+		return
+	}
+
 	if err != nil {
 		http.Error(w, "cannot register user", http.StatusInternalServerError)
 		return
