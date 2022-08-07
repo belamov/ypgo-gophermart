@@ -19,7 +19,7 @@ type Auth interface {
 	GetUserID(r *http.Request) int
 }
 
-const UserIdClaim = "user_id"
+const UserIDClaim = "user_id"
 
 type JWTAuth struct {
 	UserRepo  storage.Users
@@ -28,7 +28,7 @@ type JWTAuth struct {
 
 func (a *JWTAuth) GetUserID(r *http.Request) int {
 	_, claims, _ := jwtauth.FromContext(r.Context())
-	userID := claims[UserIdClaim].(int)
+	userID := claims[UserIDClaim].(int)
 	return userID
 }
 
@@ -113,7 +113,7 @@ func (a *JWTAuth) getTokenClaims(user models.User) (map[string]interface{}, erro
 	if user.ID == 0 {
 		return nil, errors.New("user id is required")
 	}
-	claims[UserIdClaim] = user.ID
+	claims[UserIDClaim] = user.ID
 
 	return claims, nil
 }
