@@ -12,11 +12,12 @@ import (
 
 type Server struct {
 	config *config.Config
-	auth   services.Authenticator
+	auth   services.Auth
+	orders services.OrdersProcessorInterface
 }
 
 func (s *Server) Run() {
-	r := handlers.NewRouter(s.auth)
+	r := handlers.NewRouter(s.auth, s.orders)
 
 	httpServer := &http.Server{
 		Addr:              s.config.RunAddress,
@@ -26,9 +27,10 @@ func (s *Server) Run() {
 	log.Fatal(httpServer.ListenAndServe())
 }
 
-func New(config *config.Config, auth services.Authenticator) *Server {
+func New(config *config.Config, auth services.Auth, orders services.OrdersProcessorInterface) *Server {
 	return &Server{
 		config: config,
 		auth:   auth,
+		orders: orders,
 	}
 }

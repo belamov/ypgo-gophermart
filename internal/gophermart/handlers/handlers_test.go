@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testRequest(t *testing.T, ts *httptest.Server, method, path string, body string, cookies map[string]string) (*http.Response, string) {
+func testRequest(t *testing.T, ts *httptest.Server, method, path string, body string) (*http.Response, string) {
 	t.Helper()
 
 	var err error
@@ -30,16 +30,6 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 		},
 	}
 
-	if len(cookies) > 0 {
-		for name, value := range cookies {
-			req.AddCookie(&http.Cookie{
-				Name:     name,
-				Value:    value,
-				Secure:   true,
-				HttpOnly: true,
-			})
-		}
-	}
 	resp, err = client.Do(req)
 	require.NoError(t, err)
 
@@ -49,6 +39,13 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	require.NoError(t, err)
 
 	return resp, string(bytes.TrimSpace(respBody))
+}
+
+func emptyMiddleware(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
 }
 
 // func testGzippedRequest(t *testing.T, ts *httptest.Server, method, path string, body string) (*http.Response, string) {

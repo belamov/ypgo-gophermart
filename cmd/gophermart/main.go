@@ -22,8 +22,8 @@ func main() {
 	}
 
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
-
-	srv := server.New(cfg, auth)
+	orders := services.NewOrdersProcessor()
+	srv := server.New(cfg, auth, orders)
 
 	srv.Run()
 }

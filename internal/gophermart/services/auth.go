@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
@@ -10,15 +11,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Authenticator interface {
+type Auth interface {
 	Register(credentials models.Credentials) (models.User, error)
 	GenerateToken(user models.User) (string, error)
 	Login(credentials models.Credentials) (models.User, error)
+	AuthMiddleware() func(h http.Handler) http.Handler
+	GetUserId(r *http.Request) int
 }
+
+const USER_ID_CLAIM = "user_id"
 
 type JWTAuth struct {
 	UserRepo  storage.Users
 	tokenAuth *jwtauth.JWTAuth
+}
+
+func (a *JWTAuth) GetUserId(r *http.Request) int {
+	_, claims, _ := jwtauth.FromContext(r.Context())
+	userID := claims[USER_ID_CLAIM].(int)
+	return userID
 }
 
 func NewAuth(repo storage.Users, secret string) *JWTAuth {
@@ -79,6 +90,15 @@ func (a *JWTAuth) GenerateToken(user models.User) (string, error) {
 	return tokenString, nil
 }
 
+func (a *JWTAuth) AuthMiddleware() func(h http.Handler) http.Handler {
+	verifier := jwtauth.Verifier(a.tokenAuth)
+	authenticator := jwtauth.Authenticator
+
+	return func(h http.Handler) http.Handler {
+		return authenticator(verifier(h))
+	}
+}
+
 func (a *JWTAuth) getTokenClaims(user models.User) (map[string]interface{}, error) {
 	claims := map[string]interface{}{}
 
@@ -93,7 +113,7 @@ func (a *JWTAuth) getTokenClaims(user models.User) (map[string]interface{}, erro
 	if user.ID == 0 {
 		return nil, errors.New("user id is required")
 	}
-	claims["user_id"] = user.ID
+	claims[USER_ID_CLAIM] = user.ID
 
 	return claims, nil
 }

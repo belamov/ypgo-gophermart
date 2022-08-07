@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	http "net/http"
 	reflect "reflect"
 
 	models "github.com/belamov/ypgo-gophermart/internal/gophermart/models"
@@ -34,6 +35,20 @@ func (m *MockAuthenticator) EXPECT() *MockAuthenticatorMockRecorder {
 	return m.recorder
 }
 
+// AuthMiddleware mocks base method.
+func (m *MockAuthenticator) AuthMiddleware() func(http.Handler) http.Handler {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AuthMiddleware")
+	ret0, _ := ret[0].(func(http.Handler) http.Handler)
+	return ret0
+}
+
+// AuthMiddleware indicates an expected call of AuthMiddleware.
+func (mr *MockAuthenticatorMockRecorder) AuthMiddleware() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthMiddleware", reflect.TypeOf((*MockAuthenticator)(nil).AuthMiddleware))
+}
+
 // GenerateToken mocks base method.
 func (m *MockAuthenticator) GenerateToken(arg0 models.User) (string, error) {
 	m.ctrl.T.Helper()
@@ -47,6 +62,20 @@ func (m *MockAuthenticator) GenerateToken(arg0 models.User) (string, error) {
 func (mr *MockAuthenticatorMockRecorder) GenerateToken(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthenticator)(nil).GenerateToken), arg0)
+}
+
+// GetUserId mocks base method.
+func (m *MockAuthenticator) GetUserId(arg0 *http.Request) int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserId", arg0)
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// GetUserId indicates an expected call of GetUserId.
+func (mr *MockAuthenticatorMockRecorder) GetUserId(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserId", reflect.TypeOf((*MockAuthenticator)(nil).GetUserId), arg0)
 }
 
 // Login mocks base method.

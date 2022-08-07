@@ -11,30 +11,35 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func NewRouter(auth services.Authenticator) chi.Router {
+func NewRouter(auth services.Auth, orders services.OrdersProcessorInterface) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Compress(flate.BestSpeed))
 
-	h := NewHandler(auth)
-
+	h := NewHandler(auth, orders)
 	r.Post("/api/user/register", h.Register)
 	r.Post("/api/user/login", h.Login)
+	r.Group(func(r chi.Router) {
+		r.Use(auth.AuthMiddleware())
+		r.Post("/api/user/orders", h.AddOrder)
+	})
 
 	return r
 }
 
 type Handler struct {
-	Mux  *chi.Mux
-	auth services.Authenticator
+	Mux    *chi.Mux
+	auth   services.Auth
+	orders services.OrdersProcessorInterface
 }
 
-func NewHandler(auth services.Authenticator) *Handler {
+func NewHandler(auth services.Auth, orders services.OrdersProcessorInterface) *Handler {
 	return &Handler{
-		Mux:  chi.NewMux(),
-		auth: auth,
+		Mux:    chi.NewMux(),
+		auth:   auth,
+		orders: orders,
 	}
 }
 
