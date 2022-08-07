@@ -25,12 +25,12 @@ func (h *Handler) AddOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.orders.ValidateOrderId(orderID); err != nil {
+	if err = h.orders.ValidateOrderID(orderID); err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
 
-	userID := h.auth.GetUserId(r)
+	userID := h.auth.GetUserID(r)
 	if userID == 0 {
 		http.Error(w, "", http.StatusUnauthorized)
 		return

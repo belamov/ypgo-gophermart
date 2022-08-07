@@ -78,14 +78,14 @@ func TestHandler_Register(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockAuth := mocks.NewMockAuthenticator(ctrl)
+			mockAuth := mocks.NewMockAuth(ctrl)
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
 
 			mockAuth.EXPECT().Register(validCredentials).Return(user, nil).AnyTimes()
 			mockAuth.EXPECT().Register(takenCredentials).Return(models.User{}, services.NewLoginTakenError(takenCredentials.Login, nil)).AnyTimes()
 			mockAuth.EXPECT().GenerateToken(user).Return("token", nil).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersService(ctrl)
+			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
 
 			r := NewRouter(mockAuth, mockOrders)
 			ts := httptest.NewServer(r)
@@ -170,14 +170,14 @@ func TestHandler_Login(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockAuth := mocks.NewMockAuthenticator(ctrl)
+			mockAuth := mocks.NewMockAuth(ctrl)
 
 			mockAuth.EXPECT().Login(validCredentials).Return(user, nil).AnyTimes()
 			mockAuth.EXPECT().Login(invalidCredentials).Return(models.User{}, services.NewInvalidCredentialsError(invalidCredentials, nil)).AnyTimes()
 			mockAuth.EXPECT().GenerateToken(user).Return("token", nil).AnyTimes()
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersService(ctrl)
+			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
 
 			r := NewRouter(mockAuth, mockOrders)
 			ts := httptest.NewServer(r)

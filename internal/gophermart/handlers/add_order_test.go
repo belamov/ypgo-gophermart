@@ -78,19 +78,19 @@ func TestHandler_AddOrder(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockAuth := mocks.NewMockAuthenticator(ctrl)
+			mockAuth := mocks.NewMockAuth(ctrl)
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
-			mockAuth.EXPECT().GetUserId(gomock.Any()).Return(tt.user.ID).AnyTimes()
+			mockAuth.EXPECT().GetUserID(gomock.Any()).Return(tt.user.ID).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersService(ctrl)
+			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
 
 			validOrderIDInt, err := strconv.Atoi(validOrderID)
 			require.NoError(t, err)
 			invalidOrderIDInt, err := strconv.Atoi(invalidOrderID)
 			require.NoError(t, err)
 			mockOrders.EXPECT().AddOrder(validOrderIDInt, tt.user.ID).Return(nil).AnyTimes()
-			mockOrders.EXPECT().ValidateOrderId(invalidOrderIDInt).Return(errors.New("invalid order number")).AnyTimes()
-			mockOrders.EXPECT().ValidateOrderId(validOrderIDInt).Return(nil).AnyTimes()
+			mockOrders.EXPECT().ValidateOrderID(invalidOrderIDInt).Return(errors.New("invalid order number")).AnyTimes()
+			mockOrders.EXPECT().ValidateOrderID(validOrderIDInt).Return(nil).AnyTimes()
 
 			r := NewRouter(mockAuth, mockOrders)
 			ts := httptest.NewServer(r)

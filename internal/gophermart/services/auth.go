@@ -16,19 +16,19 @@ type Auth interface {
 	GenerateToken(user models.User) (string, error)
 	Login(credentials models.Credentials) (models.User, error)
 	AuthMiddleware() func(h http.Handler) http.Handler
-	GetUserId(r *http.Request) int
+	GetUserID(r *http.Request) int
 }
 
-const USER_ID_CLAIM = "user_id"
+const UserIdClaim = "user_id"
 
 type JWTAuth struct {
 	UserRepo  storage.Users
 	tokenAuth *jwtauth.JWTAuth
 }
 
-func (a *JWTAuth) GetUserId(r *http.Request) int {
+func (a *JWTAuth) GetUserID(r *http.Request) int {
 	_, claims, _ := jwtauth.FromContext(r.Context())
-	userID := claims[USER_ID_CLAIM].(int)
+	userID := claims[UserIdClaim].(int)
 	return userID
 }
 
@@ -113,7 +113,7 @@ func (a *JWTAuth) getTokenClaims(user models.User) (map[string]interface{}, erro
 	if user.ID == 0 {
 		return nil, errors.New("user id is required")
 	}
-	claims[USER_ID_CLAIM] = user.ID
+	claims[UserIdClaim] = user.ID
 
 	return claims, nil
 }
