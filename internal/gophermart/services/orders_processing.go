@@ -36,18 +36,18 @@ func (o *OrdersProcessor) AddOrder(orderID int, userID int) error {
 		return err
 	}
 
-	//TODO: order processing
+	// TODO: order processing
 
 	return nil
 }
 
 func (o *OrdersProcessor) ValidateOrderID(orderID int) error {
 	if orderID <= 0 {
-		return errors.New("Order ID should be greater than zero")
+		return errors.New("order ID should be greater than zero")
 	}
 
 	if !validLuhn(orderID) {
-		return errors.New("Order ID is not validated by Luhn algorithm")
+		return errors.New("order ID is not validated by Luhn algorithm")
 	}
 
 	return nil

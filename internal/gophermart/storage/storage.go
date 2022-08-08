@@ -3,6 +3,7 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/golang-migrate/migrate/v4"
@@ -19,8 +20,7 @@ type UsersStorage interface {
 }
 
 func runMigrations(dsn string) error {
-	migrationsPath := "file:///usr/src/app/internal/gophermart/storage/migrations"
-	m, err := migrate.New(migrationsPath, dsn)
+	m, err := migrate.New(getMigrationsPath(), dsn)
 	if err != nil {
 		return err
 	}
@@ -36,4 +36,12 @@ func runMigrations(dsn string) error {
 
 	fmt.Println("Migrated successfully")
 	return nil
+}
+
+func getMigrationsPath() string {
+	path := os.Getenv("MIGRATIONS_PATH")
+	if path == "" {
+		path = "file://./migrations"
+	}
+	return path
 }
