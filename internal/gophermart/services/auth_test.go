@@ -49,7 +49,7 @@ func TestAuth_Register(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockUsers := mocks.NewMockUsers(ctrl)
+			mockUsers := mocks.NewMockUsersStorage(ctrl)
 
 			mockUsers.EXPECT().CreateNew("login", gomock.Not("password")).
 				Return(models.User{Login: "login", HashedPassword: "some hash"}, nil).
@@ -112,7 +112,7 @@ func TestAuth_Login(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockUsers := mocks.NewMockUsers(ctrl)
+			mockUsers := mocks.NewMockUsersStorage(ctrl)
 
 			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(validCredentials.Password), bcrypt.DefaultCost)
 			assert.NoError(t, err)

@@ -9,6 +9,7 @@ docker_bin := $(shell command -v docker 2> /dev/null)
 docker_compose_bin := $(shell command -v docker-compose 2> /dev/null)
 docker_compose_yml := docker/docker-compose.yml
 user_id := $(shell id -u)
+project_name := ypgo_gophermart
 
 .PHONY : help pull build push login test clean \
          app-pull app app-push\
@@ -22,26 +23,28 @@ help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 build: ## Build containers
-	$(docker_compose_bin) --file "$(docker_compose_yml)" build
+	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" build --parallel
 
 up: build ## Run app
-	$(docker_compose_bin) --file "$(docker_compose_yml)" up
+	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" up --remove-orphans
 
 mocks: ## Generate mocks
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) bash -c "\
+	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" run  --rm $(app_container_name) bash -c "\
+		rm -r internal/gophermart/mocks/ && \
  		mockgen -destination=internal/gophermart/mocks/auth.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services Auth && \
-		mockgen -destination=internal/gophermart/mocks/users.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage Users &&\
-		mockgen -destination=internal/gophermart/mocks/orders.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services OrdersProcessorInterface \
+		mockgen -destination=internal/gophermart/mocks/orders_service.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services OrdersProcessorInterface && \
+		mockgen -destination=internal/gophermart/mocks/users_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage UsersStorage && \
+		mockgen -destination=internal/gophermart/mocks/orders_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage OrdersStorage \
 		"
 
 lint:
 	$(docker_bin) run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.46.2 golangci-lint run
 
 gofumpt:
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) gofumpt -l -w .
+	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" run --rm $(app_container_name) gofumpt -l -w .
 
 test: ## Execute tests
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./...
+	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./...
 
 check: build gofumpt lint test  ## Run tests and code analysis
 

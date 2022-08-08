@@ -21,8 +21,13 @@ func main() {
 		panic(fmt.Sprintf("could not initialize user repo: %v", err))
 	}
 
+	ordersRepo, err := storage.NewOrdersRepository(cfg.DatabaseURI)
+	if err != nil {
+		panic(fmt.Sprintf("could not initialize orders repo: %v", err))
+	}
+
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
-	orders := services.NewOrdersProcessor()
+	orders := services.NewOrdersProcessor(ordersRepo)
 	srv := server.New(cfg, auth, orders)
 
 	srv.Run()

@@ -9,6 +9,7 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -71,6 +72,22 @@ func TestHandler_AddOrder(t *testing.T) {
 			orderID: "some id",
 			user:    user,
 		},
+		{
+			name: "it responds with 200 when order already added by same user",
+			want: want{
+				statusCode: http.StatusOK,
+			},
+			orderID: "111",
+			user:    user,
+		},
+		{
+			name: "it responds with 409 when order already added by another user",
+			want: want{
+				statusCode: http.StatusConflict,
+			},
+			orderID: "222",
+			user:    user,
+		},
 	}
 
 	for _, tt := range tests {
@@ -89,8 +106,12 @@ func TestHandler_AddOrder(t *testing.T) {
 			invalidOrderIDInt, err := strconv.Atoi(invalidOrderID)
 			require.NoError(t, err)
 			mockOrders.EXPECT().AddOrder(validOrderIDInt, tt.user.ID).Return(nil).AnyTimes()
+			mockOrders.EXPECT().AddOrder(111, tt.user.ID).Return(services.NewOrderAlreadyAddedError(models.Order{ID: 111, UserID: tt.user.ID})).AnyTimes()
+			mockOrders.EXPECT().AddOrder(222, tt.user.ID).Return(services.NewOrderAlreadyAddedError(models.Order{ID: 111, UserID: 20})).AnyTimes()
 			mockOrders.EXPECT().ValidateOrderID(invalidOrderIDInt).Return(errors.New("invalid order number")).AnyTimes()
 			mockOrders.EXPECT().ValidateOrderID(validOrderIDInt).Return(nil).AnyTimes()
+			mockOrders.EXPECT().ValidateOrderID(111).Return(nil).AnyTimes()
+			mockOrders.EXPECT().ValidateOrderID(222).Return(nil).AnyTimes()
 
 			r := NewRouter(mockAuth, mockOrders)
 			ts := httptest.NewServer(r)

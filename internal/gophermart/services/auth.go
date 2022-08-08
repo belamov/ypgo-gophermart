@@ -22,7 +22,7 @@ type Auth interface {
 const UserIDClaim = "user_id"
 
 type JWTAuth struct {
-	UserRepo  storage.Users
+	UserRepo  storage.UsersStorage
 	tokenAuth *jwtauth.JWTAuth
 }
 
@@ -32,7 +32,7 @@ func (a *JWTAuth) GetUserID(r *http.Request) int {
 	return userID
 }
 
-func NewAuth(repo storage.Users, secret string) *JWTAuth {
+func NewAuth(repo storage.UsersStorage, secret string) *JWTAuth {
 	jwtAuth := jwtauth.New("HS256", []byte(secret), nil)
 	return &JWTAuth{
 		UserRepo:  repo,

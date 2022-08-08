@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 )
 
 func (h *Handler) AddOrder(w http.ResponseWriter, r *http.Request) {
@@ -38,9 +41,26 @@ func (h *Handler) AddOrder(w http.ResponseWriter, r *http.Request) {
 
 	err = h.orders.AddOrder(orderID, userID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleOrderAddError(err, userID, w)
 		return
 	}
 
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func handleOrderAddError(err error, userID int, w http.ResponseWriter) {
+	var orderAlreadyAddedError *services.OrderAlreadyAddedError
+	if errors.As(err, &orderAlreadyAddedError) {
+		existingOrder := orderAlreadyAddedError.Order
+		if existingOrder.UserID == userID {
+			http.Error(w, "order already added", http.StatusOK)
+			return
+		}
+		http.Error(w, "order already added by another user", http.StatusConflict)
+		return
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
