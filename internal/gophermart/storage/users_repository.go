@@ -22,7 +22,7 @@ func NewUserRepository(dsn string) (*UsersRepository, error) {
 		return nil, err
 	}
 
-	if err = runMigrations(dsn, "file://./migrations"); err != nil {
+	if err = runMigrations(dsn); err != nil {
 		return nil, err
 	}
 

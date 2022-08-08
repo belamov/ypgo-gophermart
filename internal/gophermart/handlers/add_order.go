@@ -52,7 +52,7 @@ func handleOrderAddError(err error, userID int, w http.ResponseWriter) {
 	var orderAlreadyAddedError *services.OrderAlreadyAddedError
 	if errors.As(err, &orderAlreadyAddedError) {
 		existingOrder := orderAlreadyAddedError.Order
-		if existingOrder.UserID == userID {
+		if existingOrder.CreatedBy == userID {
 			http.Error(w, "order already added", http.StatusOK)
 			return
 		}

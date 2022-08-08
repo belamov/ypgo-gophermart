@@ -57,9 +57,9 @@ func TestOrdersProcessor_AddOrder(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockOrdersStorage := mocks.NewMockOrdersStorage(ctrl)
-			mockOrdersStorage.EXPECT().FindByID(1).Return(models.Order{ID: 1, UserID: 1}, nil).AnyTimes()
+			mockOrdersStorage.EXPECT().FindByID(1).Return(models.Order{ID: 1, CreatedBy: 1}, nil).AnyTimes()
 			mockOrdersStorage.EXPECT().FindByID(2).Return(models.Order{}, nil).AnyTimes()
-			mockOrdersStorage.EXPECT().CreateNew(2, 1).Return(models.Order{ID: 1, UserID: 1}, nil).AnyTimes()
+			mockOrdersStorage.EXPECT().CreateNew(2, 1).Return(models.Order{ID: 1, CreatedBy: 1}, nil).AnyTimes()
 			mockOrdersStorage.EXPECT().CreateNew(2, 2).Return(models.Order{}, errors.New("user id not found")).AnyTimes()
 
 			ordersProcessor := NewOrdersProcessor(mockOrdersStorage)

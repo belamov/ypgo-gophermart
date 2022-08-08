@@ -23,13 +23,13 @@ help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 build: ## Build containers
-	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" build --parallel
+	$(docker_compose_bin) --file "$(docker_compose_yml)" build --parallel
 
 up: build ## Run app
-	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" up --remove-orphans
+	$(docker_compose_bin) --file "$(docker_compose_yml)" up --remove-orphans
 
 mocks: ## Generate mocks
-	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" run  --rm $(app_container_name) bash -c "\
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run  --rm $(app_container_name) bash -c "\
 		rm -r internal/gophermart/mocks/ && \
  		mockgen -destination=internal/gophermart/mocks/auth.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services Auth && \
 		mockgen -destination=internal/gophermart/mocks/orders_service.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services OrdersProcessorInterface && \
@@ -41,10 +41,10 @@ lint:
 	$(docker_bin) run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.46.2 golangci-lint run
 
 gofumpt:
-	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" run --rm $(app_container_name) gofumpt -l -w .
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) gofumpt -l -w .
 
 test: ## Execute tests
-	$(docker_compose_bin) -p $(project_name) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./...
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./...
 
 check: build gofumpt lint test  ## Run tests and code analysis
 

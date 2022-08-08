@@ -16,7 +16,7 @@ type UsersRepositoryTestSuite struct {
 	repo *UsersRepository
 }
 
-func TestPgRepositoryTestSuite(t *testing.T) {
+func TestUsersRepositoryTestSuite(t *testing.T) {
 	suite.Run(t, new(UsersRepositoryTestSuite))
 }
 
@@ -31,7 +31,7 @@ func (s *UsersRepositoryTestSuite) SetupSuite() {
 }
 
 func (s *UsersRepositoryTestSuite) TearDownTest() {
-	_, err := s.repo.conn.Exec(context.Background(), "truncate table users")
+	_, err := s.repo.conn.Exec(context.Background(), "truncate table users cascade")
 	require.NoError(s.T(), err)
 }
 

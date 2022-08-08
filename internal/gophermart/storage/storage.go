@@ -18,7 +18,8 @@ type UsersStorage interface {
 	FindByLogin(login string) (models.User, error)
 }
 
-func runMigrations(dsn string, migrationsPath string) error {
+func runMigrations(dsn string) error {
+	migrationsPath := "file:///usr/src/app/internal/gophermart/storage/migrations"
 	m, err := migrate.New(migrationsPath, dsn)
 	if err != nil {
 		return err
