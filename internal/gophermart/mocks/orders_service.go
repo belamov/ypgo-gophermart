@@ -7,6 +7,7 @@ package mocks
 import (
 	reflect "reflect"
 
+	models "github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -45,6 +46,21 @@ func (m *MockOrdersProcessorInterface) AddOrder(arg0, arg1 int) error {
 func (mr *MockOrdersProcessorInterfaceMockRecorder) AddOrder(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOrder", reflect.TypeOf((*MockOrdersProcessorInterface)(nil).AddOrder), arg0, arg1)
+}
+
+// GetUsersOrders mocks base method.
+func (m *MockOrdersProcessorInterface) GetUsersOrders(arg0 int) ([]models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsersOrders", arg0)
+	ret0, _ := ret[0].([]models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsersOrders indicates an expected call of GetUsersOrders.
+func (mr *MockOrdersProcessorInterfaceMockRecorder) GetUsersOrders(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersOrders", reflect.TypeOf((*MockOrdersProcessorInterface)(nil).GetUsersOrders), arg0)
 }
 
 // ValidateOrderID mocks base method.

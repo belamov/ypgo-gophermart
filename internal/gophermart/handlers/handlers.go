@@ -24,6 +24,7 @@ func NewRouter(auth services.Auth, orders services.OrdersProcessorInterface) chi
 	r.Group(func(r chi.Router) {
 		r.Use(auth.AuthMiddleware())
 		r.Post("/api/user/orders", h.AddOrder)
+		r.Get("/api/user/orders", h.GetUsersOrders)
 	})
 
 	return r

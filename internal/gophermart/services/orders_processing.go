@@ -3,16 +3,22 @@ package services
 import (
 	"errors"
 
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 )
 
 type OrdersProcessorInterface interface {
 	AddOrder(orderID int, userID int) error
 	ValidateOrderID(s int) error
+	GetUsersOrders(userID int) ([]models.Order, error)
 }
 
 type OrdersProcessor struct {
 	OrdersStorage storage.OrdersStorage
+}
+
+func (o *OrdersProcessor) GetUsersOrders(userID int) ([]models.Order, error) {
+	return o.OrdersStorage.GetUsersOrders(userID)
 }
 
 func NewOrdersProcessor(ordersStorage storage.OrdersStorage) *OrdersProcessor {

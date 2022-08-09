@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -46,6 +47,14 @@ func emptyMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
+}
+
+func getTimeFromString(timeString string) time.Time {
+	result, err := time.Parse(time.RFC3339, timeString)
+	if err != nil {
+		panic(err.Error())
+	}
+	return result
 }
 
 // func testGzippedRequest(t *testing.T, ts *httptest.Server, method, path string, body string) (*http.Response, string) {

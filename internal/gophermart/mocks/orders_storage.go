@@ -63,3 +63,18 @@ func (mr *MockOrdersStorageMockRecorder) FindByID(arg0 interface{}) *gomock.Call
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockOrdersStorage)(nil).FindByID), arg0)
 }
+
+// GetUsersOrders mocks base method.
+func (m *MockOrdersStorage) GetUsersOrders(arg0 int) ([]models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsersOrders", arg0)
+	ret0, _ := ret[0].([]models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsersOrders indicates an expected call of GetUsersOrders.
+func (mr *MockOrdersStorageMockRecorder) GetUsersOrders(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersOrders", reflect.TypeOf((*MockOrdersStorage)(nil).GetUsersOrders), arg0)
+}

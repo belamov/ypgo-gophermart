@@ -63,8 +63,10 @@ func (s *OrdersRepositoryTestSuite) TestCreateNew() {
 	createdOrder, err := s.ordersRepository.CreateNew(orderID, user.ID)
 	require.NoError(s.T(), err)
 	expectedCreatedOrder := models.Order{ID: orderID, CreatedBy: user.ID}
-	assert.Equal(s.T(), expectedCreatedOrder, createdOrder)
 	assert.True(s.T(), s.exists(expectedCreatedOrder))
+	assert.Equal(s.T(), orderID, createdOrder.ID)
+	assert.Equal(s.T(), user.ID, createdOrder.CreatedBy)
+	assert.Equal(s.T(), models.OrderStatusNew, createdOrder.Status)
 }
 
 func (s *OrdersRepositoryTestSuite) TestFindByID() {
@@ -78,7 +80,9 @@ func (s *OrdersRepositoryTestSuite) TestFindByID() {
 
 	fetchedOrder, err := s.ordersRepository.FindByID(createdOrder.ID)
 	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), createdOrder, fetchedOrder)
+	assert.Equal(s.T(), createdOrder.ID, fetchedOrder.ID)
+	assert.Equal(s.T(), createdOrder.CreatedBy, fetchedOrder.CreatedBy)
+	assert.Equal(s.T(), createdOrder.Status, fetchedOrder.Status)
 
 	notFoundOrder, err := s.ordersRepository.FindByID(111111)
 	assert.NoError(s.T(), err)

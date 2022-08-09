@@ -12,6 +12,7 @@ import (
 type OrdersStorage interface {
 	CreateNew(orderID int, userID int) (models.Order, error)
 	FindByID(orderID int) (models.Order, error)
+	GetUsersOrders(userID int) ([]models.Order, error)
 }
 
 type UsersStorage interface {

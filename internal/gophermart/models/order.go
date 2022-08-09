@@ -1,6 +1,34 @@
 package models
 
+import "time"
+
 type Order struct {
-	ID        int `json:"id"`
-	CreatedBy int `json:"user_id"`
+	ID         int
+	CreatedBy  int
+	UploadedAt time.Time
+	Status     OrderStatus
+	Accrual    float64
+}
+
+type OrderStatus int
+
+const (
+	OrderStatusNew OrderStatus = iota + 1
+	OrderStatusProcessing
+	OrderStatusInvalid
+	OrderStatusProcessed
+)
+
+func (s OrderStatus) String() string {
+	switch s {
+	case OrderStatusNew:
+		return "NEW"
+	case OrderStatusProcessing:
+		return "PROCESSING"
+	case OrderStatusInvalid:
+		return "INVALID"
+	case OrderStatusProcessed:
+		return "PROCESSED"
+	}
+	return "unknown"
 }
