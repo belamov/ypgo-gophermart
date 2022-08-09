@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -9,13 +10,12 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
-	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestHandler_AddOrder(t *testing.T) {
+func TestHandler_RegisterWithdraw(t *testing.T) {
 	validOrderID := "123"
 	invalidOrderID := "456"
 	user := models.User{
@@ -28,65 +28,57 @@ func TestHandler_AddOrder(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		user    models.User
 		want    want
 		orderID string
+		amount  float64
 	}{
 		{
-			name: "it accepts valid order id from authenticated user",
+			name: "it accepts valid order id and valid amount",
 			want: want{
-				statusCode: http.StatusAccepted,
+				statusCode: http.StatusOK,
 			},
 			orderID: validOrderID,
-			user:    user,
+			amount:  100.5,
 		},
 		{
-			name: "it doesnt accept valid order id from unauthenticated user",
-			want: want{
-				statusCode: http.StatusUnauthorized,
-			},
-			orderID: validOrderID,
-			user:    models.User{},
-		},
-		{
-			name: "it doesnt accept invalid order id from authenticated user",
+			name: "it doesnt accept invalid order id and valid amount",
 			want: want{
 				statusCode: http.StatusUnprocessableEntity,
 			},
 			orderID: invalidOrderID,
-			user:    user,
+			amount:  100.5,
 		},
 		{
-			name: "it doesnt accept invalid order id (order id has letters)",
+			name: "it doesnt accept valid order id and invalid amount (zero)",
 			want: want{
 				statusCode: http.StatusUnprocessableEntity,
 			},
-			orderID: "12e23a",
-			user:    user,
+			orderID: validOrderID,
+			amount:  0,
 		},
 		{
-			name: "it doesnt accept invalid order id (order id has only letters)",
+			name: "it doesnt accept valid order id and invalid amount (negative)",
 			want: want{
 				statusCode: http.StatusUnprocessableEntity,
 			},
-			orderID: "some id",
-			user:    user,
+			orderID: validOrderID,
+			amount:  -100,
 		},
 		{
-			name: "it responds with 200 when order already added by same user",
+			name: "it doesnt accept invalid order id (letters)",
 			want: want{
-				statusCode: http.StatusOK,
+				statusCode: http.StatusUnprocessableEntity,
 			},
-			orderID: "111",
-			user:    user,
+			orderID: "e1a4",
+			amount:  100,
 		},
 		{
-			name: "it responds with 409 when order already added by another user",
+			name: "it doesnt accept invalid order id (empty)",
 			want: want{
-				statusCode: http.StatusConflict,
+				statusCode: http.StatusUnprocessableEntity,
 			},
-			orderID: "222",
-			user:    user,
+			orderID: "",
+			amount:  100,
 		},
 	}
 
@@ -97,34 +89,36 @@ func TestHandler_AddOrder(t *testing.T) {
 
 			mockAuth := mocks.NewMockAuth(ctrl)
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
-			mockAuth.EXPECT().GetUserID(gomock.Any()).Return(tt.user.ID).AnyTimes()
+			mockAuth.EXPECT().GetUserID(gomock.Any()).Return(user.ID).AnyTimes()
 
 			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
-
 			validOrderIDInt, err := strconv.Atoi(validOrderID)
 			require.NoError(t, err)
 			invalidOrderIDInt, err := strconv.Atoi(invalidOrderID)
 			require.NoError(t, err)
-			mockOrders.EXPECT().AddOrder(validOrderIDInt, tt.user.ID).Return(nil).AnyTimes()
-			mockOrders.EXPECT().AddOrder(111, tt.user.ID).Return(services.NewOrderAlreadyAddedError(models.Order{ID: 111, CreatedBy: tt.user.ID})).AnyTimes()
-			mockOrders.EXPECT().AddOrder(222, tt.user.ID).Return(services.NewOrderAlreadyAddedError(models.Order{ID: 111, CreatedBy: 20})).AnyTimes()
 			mockOrders.EXPECT().ValidateOrderID(invalidOrderIDInt).Return(errors.New("invalid order number")).AnyTimes()
 			mockOrders.EXPECT().ValidateOrderID(validOrderIDInt).Return(nil).AnyTimes()
-			mockOrders.EXPECT().ValidateOrderID(111).Return(nil).AnyTimes()
-			mockOrders.EXPECT().ValidateOrderID(222).Return(nil).AnyTimes()
 
 			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
+			mockBalance.EXPECT().RegisterWithdraw(validOrderIDInt, gomock.Any(), tt.amount).Return(nil).AnyTimes()
 
 			r := NewRouter(mockAuth, mockOrders, mockBalance)
 			ts := httptest.NewServer(r)
 			defer ts.Close()
 
+			request := RegisterWithdrawRequest{
+				OrderID: tt.orderID,
+				Amount:  tt.amount,
+			}
+			requestJSON, err := json.Marshal(request)
+			require.NoError(t, err)
+
 			result, _ := testRequest(
 				t,
 				ts,
 				http.MethodPost,
-				"/api/user/orders",
-				tt.orderID,
+				"/api/user/balance/withdraw",
+				string(requestJSON),
 			)
 			defer result.Body.Close()
 

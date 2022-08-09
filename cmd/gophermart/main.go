@@ -27,8 +27,9 @@ func main() {
 	}
 
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
-	orders := services.NewOrdersProcessor(ordersRepo)
-	srv := server.New(cfg, auth, orders)
+	balanceProcessor := services.NewBalanceProcessor()
+	ordersProcessor := services.NewOrdersProcessor(ordersRepo)
+	srv := server.New(cfg, auth, ordersProcessor, balanceProcessor)
 
 	srv.Run()
 }

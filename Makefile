@@ -33,6 +33,7 @@ mocks: ## Generate mocks
 		rm -r internal/gophermart/mocks/ && \
  		mockgen -destination=internal/gophermart/mocks/auth.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services Auth && \
 		mockgen -destination=internal/gophermart/mocks/orders_service.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services OrdersProcessorInterface && \
+		mockgen -destination=internal/gophermart/mocks/balance_service.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services BalanceProcessorInterface && \
 		mockgen -destination=internal/gophermart/mocks/users_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage UsersStorage && \
 		mockgen -destination=internal/gophermart/mocks/orders_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage OrdersStorage \
 		"

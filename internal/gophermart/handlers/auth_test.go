@@ -87,7 +87,9 @@ func TestHandler_Register(t *testing.T) {
 
 			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
 
-			r := NewRouter(mockAuth, mockOrders)
+			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
+
+			r := NewRouter(mockAuth, mockOrders, mockBalance)
 			ts := httptest.NewServer(r)
 			defer ts.Close()
 
@@ -179,7 +181,9 @@ func TestHandler_Login(t *testing.T) {
 
 			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
 
-			r := NewRouter(mockAuth, mockOrders)
+			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
+
+			r := NewRouter(mockAuth, mockOrders, mockBalance)
 			ts := httptest.NewServer(r)
 			defer ts.Close()
 

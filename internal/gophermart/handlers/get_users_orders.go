@@ -10,7 +10,7 @@ import (
 func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 	userID := h.auth.GetUserID(r)
 
-	usersOrders, err := h.orders.GetUsersOrders(userID)
+	usersOrders, err := h.ordersProcessor.GetUsersOrders(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

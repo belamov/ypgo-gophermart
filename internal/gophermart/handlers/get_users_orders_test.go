@@ -87,7 +87,9 @@ func TestHandler_GetUsersOrders(t *testing.T) {
 			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
 			mockOrders.EXPECT().GetUsersOrders(gomock.Any()).Return(tt.orders, nil).AnyTimes()
 
-			r := NewRouter(mockAuth, mockOrders)
+			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
+
+			r := NewRouter(mockAuth, mockOrders, mockBalance)
 			ts := httptest.NewServer(r)
 			defer ts.Close()
 
