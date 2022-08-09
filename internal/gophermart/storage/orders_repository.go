@@ -14,8 +14,34 @@ type OrdersRepository struct {
 }
 
 func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error) {
-	// TODO implement me
-	panic("implement me")
+	var orders []models.Order
+
+	rows, err := repo.conn.Query(
+		context.Background(),
+		"select id, created_by, uploaded_at, status, accrual from orders where created_by=$1 order by uploaded_at desc",
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		model := models.Order{}
+		var accrual pgtype.Float8
+		if err = rows.Scan(&model.ID, &model.CreatedBy, &model.UploadedAt, &model.Status, &accrual); err != nil {
+			return nil, err
+		}
+		model.Accrual = accrual.Float
+		orders = append(orders, model)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return orders, nil
 }
 
 func NewOrdersRepository(dsn string) (*OrdersRepository, error) {

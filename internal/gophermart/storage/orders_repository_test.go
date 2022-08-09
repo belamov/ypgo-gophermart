@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/stretchr/testify/assert"
@@ -88,4 +89,27 @@ func (s *OrdersRepositoryTestSuite) TestFindByID() {
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), 0, notFoundOrder.ID)
 	assert.Equal(s.T(), 0, notFoundOrder.CreatedBy)
+}
+
+func (s *OrdersRepositoryTestSuite) TestGetUsersOrders() {
+	max, err := s.usersRepository.CreateNew("max", "password")
+	require.NoError(s.T(), err)
+	john, err := s.usersRepository.CreateNew("john", "password")
+	require.NoError(s.T(), err)
+
+	maxOldOrder, err := s.ordersRepository.CreateNew(123, max.ID)
+	require.NoError(s.T(), err)
+	_, err = s.ordersRepository.CreateNew(345, john.ID)
+	require.NoError(s.T(), err)
+	time.Sleep(time.Second)
+	maxNewOrder, err := s.ordersRepository.CreateNew(124, max.ID)
+	require.NoError(s.T(), err)
+
+	maxesOrders, err := s.ordersRepository.GetUsersOrders(max.ID)
+	assert.NoError(s.T(), err)
+	assert.Len(s.T(), maxesOrders, 2)
+	assert.Equal(s.T(), maxNewOrder.ID, maxesOrders[0].ID)
+	assert.Equal(s.T(), maxNewOrder.CreatedBy, max.ID)
+	assert.Equal(s.T(), maxOldOrder.ID, maxesOrders[1].ID)
+	assert.Equal(s.T(), maxOldOrder.CreatedBy, max.ID)
 }
