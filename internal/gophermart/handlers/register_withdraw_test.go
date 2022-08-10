@@ -10,6 +10,7 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,6 +24,7 @@ func TestHandler_RegisterWithdraw(t *testing.T) {
 		Login:          "login",
 		HashedPassword: "hash",
 	}
+	userWithInsufficientBalance := models.User{ID: 20}
 	type want struct {
 		statusCode int
 	}
@@ -31,6 +33,7 @@ func TestHandler_RegisterWithdraw(t *testing.T) {
 		want    want
 		orderID string
 		amount  float64
+		userID  int
 	}{
 		{
 			name: "it accepts valid order id and valid amount",
@@ -80,6 +83,15 @@ func TestHandler_RegisterWithdraw(t *testing.T) {
 			orderID: "",
 			amount:  100,
 		},
+		{
+			name: "it returns 402 when user has insufficient balance",
+			want: want{
+				statusCode: http.StatusPaymentRequired,
+			},
+			orderID: validOrderID,
+			amount:  100,
+			userID:  userWithInsufficientBalance.ID,
+		},
 	}
 
 	for _, tt := range tests {
@@ -87,9 +99,16 @@ func TestHandler_RegisterWithdraw(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockAuth := mocks.NewMockAuth(ctrl)
-			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
-			mockAuth.EXPECT().GetUserID(gomock.Any()).Return(user.ID).AnyTimes()
+			var mockAuth *mocks.MockAuth
+			if tt.userID == 0 {
+				mockAuth = mocks.NewMockAuth(ctrl)
+				mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
+				mockAuth.EXPECT().GetUserID(gomock.Any()).Return(user.ID).AnyTimes()
+			} else {
+				mockAuth = mocks.NewMockAuth(ctrl)
+				mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
+				mockAuth.EXPECT().GetUserID(gomock.Any()).Return(userWithInsufficientBalance.ID).AnyTimes()
+			}
 
 			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
 			validOrderIDInt, err := strconv.Atoi(validOrderID)
@@ -100,7 +119,8 @@ func TestHandler_RegisterWithdraw(t *testing.T) {
 			mockOrders.EXPECT().ValidateOrderID(validOrderIDInt).Return(nil).AnyTimes()
 
 			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
-			mockBalance.EXPECT().RegisterWithdraw(validOrderIDInt, gomock.Any(), tt.amount).Return(nil).AnyTimes()
+			mockBalance.EXPECT().RegisterWithdraw(validOrderIDInt, user.ID, tt.amount).Return(nil).AnyTimes()
+			mockBalance.EXPECT().RegisterWithdraw(validOrderIDInt, userWithInsufficientBalance.ID, tt.amount).Return(services.NewInsufficientBalanceError(0, tt.amount)).AnyTimes()
 
 			r := NewRouter(mockAuth, mockOrders, mockBalance)
 			ts := httptest.NewServer(r)

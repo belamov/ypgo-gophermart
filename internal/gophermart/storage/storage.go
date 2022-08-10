@@ -20,6 +20,12 @@ type UsersStorage interface {
 	FindByLogin(login string) (models.User, error)
 }
 
+type BalanceStorage interface {
+	AddWithdraw(orderID int, userID int, withdrawAmount float64) error
+	GetTotalAccrual(userID int) (float64, error)
+	GetTotalWithdraws(userID int) (float64, error)
+}
+
 func runMigrations(dsn string) error {
 	m, err := migrate.New(getMigrationsPath(), dsn)
 	if err != nil {

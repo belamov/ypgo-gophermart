@@ -93,5 +93,7 @@ func (repo *OrdersRepository) CreateNew(orderID int, userID int) (models.Order, 
 		order.Status,
 	)
 
+	// todo: handle not unique order id
+
 	return order, err
 }

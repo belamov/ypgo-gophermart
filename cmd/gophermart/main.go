@@ -26,8 +26,13 @@ func main() {
 		panic(fmt.Sprintf("could not initialize orders repo: %v", err))
 	}
 
+	balanceRepo, err := storage.NewBalanceRepository(cfg.DatabaseURI)
+	if err != nil {
+		panic(fmt.Sprintf("could not initialize balance repo: %v", err))
+	}
+
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
-	balanceProcessor := services.NewBalanceProcessor()
+	balanceProcessor := services.NewBalanceProcessor(balanceRepo)
 	ordersProcessor := services.NewOrdersProcessor(ordersRepo)
 	srv := server.New(cfg, auth, ordersProcessor, balanceProcessor)
 

@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
+
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 )
 
 type RegisterWithdrawRequest struct {
@@ -47,7 +50,11 @@ func (h *Handler) RegisterWithdraw(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.balanceProcessor.RegisterWithdraw(orderID, userID, request.Amount)
-	// TODO: handle insufficient balance error
+	var insufficientBalanceError *services.InsufficientBalanceError
+	if errors.As(err, &insufficientBalanceError) {
+		http.Error(w, err.Error(), http.StatusPaymentRequired)
+		return
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
