@@ -34,6 +34,36 @@ func (m *MockBalanceProcessorInterface) EXPECT() *MockBalanceProcessorInterfaceM
 	return m.recorder
 }
 
+// GetUserTotalAccrualAmount mocks base method.
+func (m *MockBalanceProcessorInterface) GetUserTotalAccrualAmount(arg0 int) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserTotalAccrualAmount", arg0)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserTotalAccrualAmount indicates an expected call of GetUserTotalAccrualAmount.
+func (mr *MockBalanceProcessorInterfaceMockRecorder) GetUserTotalAccrualAmount(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserTotalAccrualAmount", reflect.TypeOf((*MockBalanceProcessorInterface)(nil).GetUserTotalAccrualAmount), arg0)
+}
+
+// GetUserTotalWithdrawAmount mocks base method.
+func (m *MockBalanceProcessorInterface) GetUserTotalWithdrawAmount(arg0 int) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserTotalWithdrawAmount", arg0)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserTotalWithdrawAmount indicates an expected call of GetUserTotalWithdrawAmount.
+func (mr *MockBalanceProcessorInterfaceMockRecorder) GetUserTotalWithdrawAmount(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserTotalWithdrawAmount", reflect.TypeOf((*MockBalanceProcessorInterface)(nil).GetUserTotalWithdrawAmount), arg0)
+}
+
 // GetUserWithdrawals mocks base method.
 func (m *MockBalanceProcessorInterface) GetUserWithdrawals(arg0 int) ([]models.Withdrawal, error) {
 	m.ctrl.T.Helper()

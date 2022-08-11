@@ -9,6 +9,8 @@ import (
 
 type BalanceProcessorInterface interface {
 	RegisterWithdraw(orderID int, userID int, withdrawAmount float64) error
+	GetUserTotalAccrualAmount(userID int) (float64, error)
+	GetUserTotalWithdrawAmount(userID int) (float64, error)
 	GetUserWithdrawals(userID int) ([]models.Withdrawal, error)
 }
 
@@ -49,19 +51,19 @@ func (b *BalanceProcessor) GetUserWithdrawals(userID int) ([]models.Withdrawal, 
 }
 
 func (b *BalanceProcessor) getUserBalance(userID int) (float64, error) {
-	totalAccrual, err := b.getUserTotalAccrual(userID)
+	totalAccrual, err := b.GetUserTotalAccrualAmount(userID)
 	if err != nil {
 		return 0, err
 	}
 
-	totalWithdraws, err := b.getUserTotalWithdraws(userID)
+	totalWithdraws, err := b.GetUserTotalWithdrawAmount(userID)
 	if err != nil {
 		return 0, err
 	}
 	return totalAccrual - totalWithdraws, nil
 }
 
-func (b *BalanceProcessor) getUserTotalAccrual(userID int) (float64, error) {
+func (b *BalanceProcessor) GetUserTotalAccrualAmount(userID int) (float64, error) {
 	totalAccrual, err := b.balanceStorage.GetTotalAccrualAmount(userID)
 	if err != nil {
 		return 0, err
@@ -69,7 +71,7 @@ func (b *BalanceProcessor) getUserTotalAccrual(userID int) (float64, error) {
 	return totalAccrual, nil
 }
 
-func (b *BalanceProcessor) getUserTotalWithdraws(userID int) (float64, error) {
+func (b *BalanceProcessor) GetUserTotalWithdrawAmount(userID int) (float64, error) {
 	totalWithdraws, err := b.balanceStorage.GetTotalWithdrawAmount(userID)
 	if err != nil {
 		return 0, err
