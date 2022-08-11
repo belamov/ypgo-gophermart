@@ -7,6 +7,7 @@ package mocks
 import (
 	reflect "reflect"
 
+	models "github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -31,6 +32,21 @@ func NewMockBalanceProcessorInterface(ctrl *gomock.Controller) *MockBalanceProce
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockBalanceProcessorInterface) EXPECT() *MockBalanceProcessorInterfaceMockRecorder {
 	return m.recorder
+}
+
+// GetUserWithdrawals mocks base method.
+func (m *MockBalanceProcessorInterface) GetUserWithdrawals(arg0 int) ([]models.Withdrawal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserWithdrawals", arg0)
+	ret0, _ := ret[0].([]models.Withdrawal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserWithdrawals indicates an expected call of GetUserWithdrawals.
+func (mr *MockBalanceProcessorInterfaceMockRecorder) GetUserWithdrawals(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdrawals", reflect.TypeOf((*MockBalanceProcessorInterface)(nil).GetUserWithdrawals), arg0)
 }
 
 // RegisterWithdraw mocks base method.

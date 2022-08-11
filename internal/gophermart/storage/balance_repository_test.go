@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/stretchr/testify/assert"
@@ -88,7 +89,7 @@ func (s *BalanceRepositoryTestSuite) TestGetTotalWithdraws() {
 	_ = s.balanceRepository.AddWithdraw(20, max.ID, 20.0)
 	_ = s.balanceRepository.AddWithdraw(30, john.ID, 40.0)
 
-	totalWithdraws, err := s.balanceRepository.GetTotalWithdraws(max.ID)
+	totalWithdraws, err := s.balanceRepository.GetTotalWithdrawAmount(max.ID)
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), 30.0, totalWithdraws)
 }
@@ -103,7 +104,7 @@ func (s *BalanceRepositoryTestSuite) TestGetTotalAccrual() {
 	s.addAccrual(20, max.ID, 20.0)
 	s.addAccrual(40, john.ID, 40.0)
 
-	totalAccrual, err := s.balanceRepository.GetTotalAccrual(max.ID)
+	totalAccrual, err := s.balanceRepository.GetTotalAccrualAmount(max.ID)
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), 30.0, totalAccrual)
 }
@@ -118,4 +119,27 @@ func (s *BalanceRepositoryTestSuite) addAccrual(orderID int, userID int, amount 
 		amount,
 	)
 	require.NoError(s.T(), err)
+}
+
+func (s *BalanceRepositoryTestSuite) TestGetUserWithdrawals() {
+	max, err := s.usersRepository.CreateNew("max", "password")
+	require.NoError(s.T(), err)
+	john, err := s.usersRepository.CreateNew("john", "password")
+	require.NoError(s.T(), err)
+
+	oldMaxWithdrawalOrderID := 123
+	newMaxWithdrawalOrderID := 456
+	err = s.balanceRepository.AddWithdraw(oldMaxWithdrawalOrderID, max.ID, 10)
+	require.NoError(s.T(), err)
+	err = s.balanceRepository.AddWithdraw(999, john.ID, 10)
+	require.NoError(s.T(), err)
+	time.Sleep(time.Second)
+	err = s.balanceRepository.AddWithdraw(newMaxWithdrawalOrderID, max.ID, 20)
+	require.NoError(s.T(), err)
+
+	maxesWithdrawals, err := s.balanceRepository.GetUserWithdrawals(max.ID)
+	assert.NoError(s.T(), err)
+	assert.Len(s.T(), maxesWithdrawals, 2)
+	assert.Equal(s.T(), oldMaxWithdrawalOrderID, maxesWithdrawals[0].OrderID)
+	assert.Equal(s.T(), newMaxWithdrawalOrderID, maxesWithdrawals[1].OrderID)
 }

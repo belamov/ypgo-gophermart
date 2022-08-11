@@ -7,6 +7,7 @@ package mocks
 import (
 	reflect "reflect"
 
+	models "github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -47,32 +48,47 @@ func (mr *MockBalanceStorageMockRecorder) AddWithdraw(arg0, arg1, arg2 interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddWithdraw", reflect.TypeOf((*MockBalanceStorage)(nil).AddWithdraw), arg0, arg1, arg2)
 }
 
-// GetTotalAccrual mocks base method.
-func (m *MockBalanceStorage) GetTotalAccrual(arg0 int) (float64, error) {
+// GetTotalAccrualAmount mocks base method.
+func (m *MockBalanceStorage) GetTotalAccrualAmount(arg0 int) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTotalAccrual", arg0)
+	ret := m.ctrl.Call(m, "GetTotalAccrualAmount", arg0)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetTotalAccrual indicates an expected call of GetTotalAccrual.
-func (mr *MockBalanceStorageMockRecorder) GetTotalAccrual(arg0 interface{}) *gomock.Call {
+// GetTotalAccrualAmount indicates an expected call of GetTotalAccrualAmount.
+func (mr *MockBalanceStorageMockRecorder) GetTotalAccrualAmount(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTotalAccrual", reflect.TypeOf((*MockBalanceStorage)(nil).GetTotalAccrual), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTotalAccrualAmount", reflect.TypeOf((*MockBalanceStorage)(nil).GetTotalAccrualAmount), arg0)
 }
 
-// GetTotalWithdraws mocks base method.
-func (m *MockBalanceStorage) GetTotalWithdraws(arg0 int) (float64, error) {
+// GetTotalWithdrawAmount mocks base method.
+func (m *MockBalanceStorage) GetTotalWithdrawAmount(arg0 int) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTotalWithdraws", arg0)
+	ret := m.ctrl.Call(m, "GetTotalWithdrawAmount", arg0)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetTotalWithdraws indicates an expected call of GetTotalWithdraws.
-func (mr *MockBalanceStorageMockRecorder) GetTotalWithdraws(arg0 interface{}) *gomock.Call {
+// GetTotalWithdrawAmount indicates an expected call of GetTotalWithdrawAmount.
+func (mr *MockBalanceStorageMockRecorder) GetTotalWithdrawAmount(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTotalWithdraws", reflect.TypeOf((*MockBalanceStorage)(nil).GetTotalWithdraws), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTotalWithdrawAmount", reflect.TypeOf((*MockBalanceStorage)(nil).GetTotalWithdrawAmount), arg0)
+}
+
+// GetUserWithdrawals mocks base method.
+func (m *MockBalanceStorage) GetUserWithdrawals(arg0 int) ([]models.Withdrawal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserWithdrawals", arg0)
+	ret0, _ := ret[0].([]models.Withdrawal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserWithdrawals indicates an expected call of GetUserWithdrawals.
+func (mr *MockBalanceStorageMockRecorder) GetUserWithdrawals(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdrawals", reflect.TypeOf((*MockBalanceStorage)(nil).GetUserWithdrawals), arg0)
 }

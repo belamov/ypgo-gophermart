@@ -9,6 +9,10 @@ import (
 
 func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 	userID := h.auth.GetUserID(r)
+	if userID == 0 {
+		http.Error(w, "", http.StatusUnauthorized)
+		return
+	}
 
 	usersOrders, err := h.ordersProcessor.GetUsersOrders(userID)
 	if err != nil {

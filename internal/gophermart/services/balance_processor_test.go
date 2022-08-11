@@ -40,10 +40,10 @@ func TestBalanceProcessor_RegisterWithdraw(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockBalanceStorage := mocks.NewMockBalanceStorage(ctrl)
-			mockBalanceStorage.EXPECT().GetTotalAccrual(userWithSufficientBalance.ID).Return(100000.0, nil).AnyTimes()
-			mockBalanceStorage.EXPECT().GetTotalAccrual(userWithInsufficientBalance.ID).Return(0.0, nil).AnyTimes()
-			mockBalanceStorage.EXPECT().GetTotalWithdraws(userWithSufficientBalance.ID).Return(0.0, nil).AnyTimes()
-			mockBalanceStorage.EXPECT().GetTotalWithdraws(userWithInsufficientBalance.ID).Return(0.0, nil).AnyTimes()
+			mockBalanceStorage.EXPECT().GetTotalAccrualAmount(userWithSufficientBalance.ID).Return(100000.0, nil).AnyTimes()
+			mockBalanceStorage.EXPECT().GetTotalAccrualAmount(userWithInsufficientBalance.ID).Return(0.0, nil).AnyTimes()
+			mockBalanceStorage.EXPECT().GetTotalWithdrawAmount(userWithSufficientBalance.ID).Return(0.0, nil).AnyTimes()
+			mockBalanceStorage.EXPECT().GetTotalWithdrawAmount(userWithInsufficientBalance.ID).Return(0.0, nil).AnyTimes()
 			mockBalanceStorage.EXPECT().AddWithdraw(gomock.Any(), userWithSufficientBalance.ID, gomock.Any()).Return(nil).AnyTimes()
 
 			b := NewBalanceProcessor(mockBalanceStorage)

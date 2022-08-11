@@ -22,8 +22,9 @@ type UsersStorage interface {
 
 type BalanceStorage interface {
 	AddWithdraw(orderID int, userID int, withdrawAmount float64) error
-	GetTotalAccrual(userID int) (float64, error)
-	GetTotalWithdraws(userID int) (float64, error)
+	GetTotalAccrualAmount(userID int) (float64, error)
+	GetTotalWithdrawAmount(userID int) (float64, error)
+	GetUserWithdrawals(userID int) ([]models.Withdrawal, error)
 }
 
 func RunMigrations(dsn string) error {

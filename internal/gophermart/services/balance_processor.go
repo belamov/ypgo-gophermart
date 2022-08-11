@@ -3,11 +3,13 @@ package services
 import (
 	"sync"
 
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 )
 
 type BalanceProcessorInterface interface {
 	RegisterWithdraw(orderID int, userID int, withdrawAmount float64) error
+	GetUserWithdrawals(userID int) ([]models.Withdrawal, error)
 }
 
 type BalanceProcessor struct {
@@ -21,7 +23,7 @@ func (b *BalanceProcessor) RegisterWithdraw(orderID int, userID int, withdrawAmo
 	// todo: lock only for given user id
 	// https://pkg.go.dev/golang.org/x/sync@v0.0.0-20220722155255-886fb9371eb4/singleflight
 
-	currentBalance, err := b.getCurrentUserBalance(userID)
+	currentBalance, err := b.getUserBalance(userID)
 	if err != nil {
 		return err
 	}
@@ -38,29 +40,37 @@ func (b *BalanceProcessor) RegisterWithdraw(orderID int, userID int, withdrawAmo
 	return nil
 }
 
-func (b *BalanceProcessor) getCurrentUserBalance(userID int) (float64, error) {
-	totalAccrual, err := b.getTotalAccrual(userID)
+func (b *BalanceProcessor) GetUserWithdrawals(userID int) ([]models.Withdrawal, error) {
+	withdrawals, err := b.balanceStorage.GetUserWithdrawals(userID)
+	if err != nil {
+		return nil, err
+	}
+	return withdrawals, nil
+}
+
+func (b *BalanceProcessor) getUserBalance(userID int) (float64, error) {
+	totalAccrual, err := b.getUserTotalAccrual(userID)
 	if err != nil {
 		return 0, err
 	}
 
-	totalWithdraws, err := b.getTotalWithdraws(userID)
+	totalWithdraws, err := b.getUserTotalWithdraws(userID)
 	if err != nil {
 		return 0, err
 	}
 	return totalAccrual - totalWithdraws, nil
 }
 
-func (b *BalanceProcessor) getTotalAccrual(userID int) (float64, error) {
-	totalAccrual, err := b.balanceStorage.GetTotalAccrual(userID)
+func (b *BalanceProcessor) getUserTotalAccrual(userID int) (float64, error) {
+	totalAccrual, err := b.balanceStorage.GetTotalAccrualAmount(userID)
 	if err != nil {
 		return 0, err
 	}
 	return totalAccrual, nil
 }
 
-func (b *BalanceProcessor) getTotalWithdraws(userID int) (float64, error) {
-	totalWithdraws, err := b.balanceStorage.GetTotalWithdraws(userID)
+func (b *BalanceProcessor) getUserTotalWithdraws(userID int) (float64, error) {
+	totalWithdraws, err := b.balanceStorage.GetTotalWithdrawAmount(userID)
 	if err != nil {
 		return 0, err
 	}

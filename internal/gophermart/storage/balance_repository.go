@@ -3,11 +3,46 @@ package storage
 import (
 	"context"
 
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
+	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
 )
 
 type BalanceRepository struct {
 	conn *pgx.Conn
+}
+
+func (repo *BalanceRepository) GetUserWithdrawals(userID int) ([]models.Withdrawal, error) {
+	var withdrawals []models.Withdrawal
+
+	rows, err := repo.conn.Query(
+		context.Background(),
+		"select order_id, user_id, amount, created_at from withdraws where user_id=$1 order by created_at",
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		model := models.Withdrawal{}
+		var amount pgtype.Float8
+		var createdAt pgtype.Timestamp
+		if err = rows.Scan(&model.OrderID, &model.UserID, &amount, &createdAt); err != nil {
+			return nil, err
+		}
+		model.WithdrawalAmount = amount.Float
+		model.CreatedAt = createdAt.Time
+		withdrawals = append(withdrawals, model)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return withdrawals, nil
 }
 
 func NewBalanceRepository(dsn string) (*BalanceRepository, error) {
@@ -21,7 +56,7 @@ func NewBalanceRepository(dsn string) (*BalanceRepository, error) {
 	}, nil
 }
 
-func (repo *BalanceRepository) GetTotalAccrual(userID int) (float64, error) {
+func (repo *BalanceRepository) GetTotalAccrualAmount(userID int) (float64, error) {
 	result := 0.0
 	err := repo.conn.QueryRow(
 		context.Background(),
@@ -32,7 +67,7 @@ func (repo *BalanceRepository) GetTotalAccrual(userID int) (float64, error) {
 	return result, err
 }
 
-func (repo *BalanceRepository) GetTotalWithdraws(userID int) (float64, error) {
+func (repo *BalanceRepository) GetTotalWithdrawAmount(userID int) (float64, error) {
 	result := 0.0
 	err := repo.conn.QueryRow(
 		context.Background(),
