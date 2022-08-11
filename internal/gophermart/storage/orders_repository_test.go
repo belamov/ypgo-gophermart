@@ -34,6 +34,9 @@ func (s *OrdersRepositoryTestSuite) SetupSuite() {
 	usersRepository, err := NewUserRepository(dsn)
 	require.NoError(s.T(), err)
 	s.usersRepository = usersRepository
+
+	err = RunMigrations(dsn)
+	require.NoError(s.T(), err)
 }
 
 func (s *OrdersRepositoryTestSuite) TearDownTest() {

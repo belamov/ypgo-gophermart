@@ -50,10 +50,6 @@ func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
 		return nil, err
 	}
 
-	if err = runMigrations(dsn); err != nil {
-		return nil, err
-	}
-
 	return &OrdersRepository{
 		conn: conn,
 	}, nil

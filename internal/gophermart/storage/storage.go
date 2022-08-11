@@ -26,7 +26,7 @@ type BalanceStorage interface {
 	GetTotalWithdraws(userID int) (float64, error)
 }
 
-func runMigrations(dsn string) error {
+func RunMigrations(dsn string) error {
 	m, err := migrate.New(getMigrationsPath(), dsn)
 	if err != nil {
 		return err

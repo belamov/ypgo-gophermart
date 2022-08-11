@@ -16,26 +16,41 @@ func NewBalanceRepository(dsn string) (*BalanceRepository, error) {
 		return nil, err
 	}
 
-	if err = runMigrations(dsn); err != nil {
-		return nil, err
-	}
-
 	return &BalanceRepository{
 		conn: conn,
 	}, nil
 }
 
 func (repo *BalanceRepository) GetTotalAccrual(userID int) (float64, error) {
-	// TODO implement me
-	panic("implement me")
+	result := 0.0
+	err := repo.conn.QueryRow(
+		context.Background(),
+		"select sum(accrual) from orders where created_by=$1 group by created_by",
+		userID,
+	).Scan(&result)
+
+	return result, err
 }
 
 func (repo *BalanceRepository) GetTotalWithdraws(userID int) (float64, error) {
-	// TODO implement me
-	panic("implement me")
+	result := 0.0
+	err := repo.conn.QueryRow(
+		context.Background(),
+		"select sum(amount) from withdraws where user_id=$1 group by user_id",
+		userID,
+	).Scan(&result)
+
+	return result, err
 }
 
 func (repo *BalanceRepository) AddWithdraw(orderID int, userID int, amount float64) error {
-	// TODO implement me
-	panic("implement me")
+	_, err := repo.conn.Exec(
+		context.Background(),
+		"insert into withdraws (order_id, user_id, amount) values ($1, $2, $3)",
+		orderID,
+		userID,
+		amount,
+	)
+
+	return err
 }

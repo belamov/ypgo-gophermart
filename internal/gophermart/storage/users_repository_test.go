@@ -28,6 +28,9 @@ func (s *UsersRepositoryTestSuite) SetupSuite() {
 	repo, err := NewUserRepository(dsn)
 	require.NoError(s.T(), err)
 	s.repo = repo
+
+	err = RunMigrations(dsn)
+	require.NoError(s.T(), err)
 }
 
 func (s *UsersRepositoryTestSuite) TearDownTest() {

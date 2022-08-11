@@ -22,10 +22,6 @@ func NewUserRepository(dsn string) (*UsersRepository, error) {
 		return nil, err
 	}
 
-	if err = runMigrations(dsn); err != nil {
-		return nil, err
-	}
-
 	return &UsersRepository{
 		conn: conn,
 	}, nil

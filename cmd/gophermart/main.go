@@ -16,6 +16,11 @@ func main() {
 	cfg.Init()
 	flag.Parse()
 
+	err := storage.RunMigrations(cfg.DatabaseURI)
+	if err != nil {
+		panic(fmt.Sprintf("could not run migrations: %v", err))
+	}
+
 	userRepo, err := storage.NewUserRepository(cfg.DatabaseURI)
 	if err != nil {
 		panic(fmt.Sprintf("could not initialize user repo: %v", err))
