@@ -28,12 +28,17 @@ build: ## Build containers
 up: build ## Run app
 	$(docker_compose_bin) --file "$(docker_compose_yml)" up --remove-orphans
 
-mocks: ## Generate mocks
+mocks_delete:
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run  --rm $(app_container_name) bash -c "rm -r -f internal/gophermart/mocks/"
+
+mocks_regenerate: mocks_delete mocks_generate
+
+mocks_generate: ## Generate mocks
 	$(docker_compose_bin) --file "$(docker_compose_yml)" run  --rm $(app_container_name) bash -c "\
-		rm -r internal/gophermart/mocks/ && \
  		mockgen -destination=internal/gophermart/mocks/auth.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services Auth && \
 		mockgen -destination=internal/gophermart/mocks/orders_service.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services OrdersProcessorInterface && \
 		mockgen -destination=internal/gophermart/mocks/balance_service.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services BalanceProcessorInterface && \
+		mockgen -destination=internal/gophermart/mocks/accrual_service.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/services AccrualInfoProvider && \
 		mockgen -destination=internal/gophermart/mocks/users_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage UsersStorage && \
 		mockgen -destination=internal/gophermart/mocks/orders_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage OrdersStorage &&\
 		mockgen -destination=internal/gophermart/mocks/balance_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage BalanceStorage \

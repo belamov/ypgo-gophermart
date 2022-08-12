@@ -12,6 +12,7 @@ type BalanceProcessorInterface interface {
 	GetUserTotalAccrualAmount(userID int) (float64, error)
 	GetUserTotalWithdrawAmount(userID int) (float64, error)
 	GetUserWithdrawals(userID int) ([]models.Withdrawal, error)
+	AddAccrual(order models.Order, accrual float64) error
 }
 
 type BalanceProcessor struct {
@@ -77,6 +78,14 @@ func (b *BalanceProcessor) GetUserTotalWithdrawAmount(userID int) (float64, erro
 		return 0, err
 	}
 	return totalWithdraws, nil
+}
+
+func (b *BalanceProcessor) AddAccrual(order models.Order, accrual float64) error {
+	err := b.balanceStorage.AddAccrual(order.ID, accrual)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewBalanceProcessor(balanceStorage storage.BalanceStorage) *BalanceProcessor {

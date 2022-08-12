@@ -13,6 +13,7 @@ type OrdersStorage interface {
 	CreateNew(orderID int, userID int) (models.Order, error)
 	FindByID(orderID int) (models.Order, error)
 	GetUsersOrders(userID int) ([]models.Order, error)
+	ChangeStatus(order models.Order, status models.OrderStatus) error
 }
 
 type UsersStorage interface {
@@ -25,6 +26,7 @@ type BalanceStorage interface {
 	GetTotalAccrualAmount(userID int) (float64, error)
 	GetTotalWithdrawAmount(userID int) (float64, error)
 	GetUserWithdrawals(userID int) ([]models.Withdrawal, error)
+	AddAccrual(orderID int, accrual float64) error
 }
 
 func RunMigrations(dsn string) error {

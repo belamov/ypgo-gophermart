@@ -34,6 +34,20 @@ func (m *MockBalanceProcessorInterface) EXPECT() *MockBalanceProcessorInterfaceM
 	return m.recorder
 }
 
+// AddAccrual mocks base method.
+func (m *MockBalanceProcessorInterface) AddAccrual(arg0 models.Order, arg1 float64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAccrual", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAccrual indicates an expected call of AddAccrual.
+func (mr *MockBalanceProcessorInterfaceMockRecorder) AddAccrual(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccrual", reflect.TypeOf((*MockBalanceProcessorInterface)(nil).AddAccrual), arg0, arg1)
+}
+
 // GetUserTotalAccrualAmount mocks base method.
 func (m *MockBalanceProcessorInterface) GetUserTotalAccrualAmount(arg0 int) (float64, error) {
 	m.ctrl.T.Helper()

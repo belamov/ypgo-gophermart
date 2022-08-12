@@ -12,6 +12,11 @@ type BalanceRepository struct {
 	conn *pgx.Conn
 }
 
+func (repo *BalanceRepository) AddAccrual(orderID int, accrual float64) error {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (repo *BalanceRepository) GetUserWithdrawals(userID int) ([]models.Withdrawal, error) {
 	var withdrawals []models.Withdrawal
 

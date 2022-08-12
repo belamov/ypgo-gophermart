@@ -36,9 +36,10 @@ func main() {
 		panic(fmt.Sprintf("could not initialize balance repo: %v", err))
 	}
 
+	accrualService := services.NewAccrualHttpClient()
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
 	balanceProcessor := services.NewBalanceProcessor(balanceRepo)
-	ordersProcessor := services.NewOrdersProcessor(ordersRepo)
+	ordersProcessor := services.NewOrdersProcessor(ordersRepo, balanceProcessor, accrualService)
 	srv := server.New(cfg, auth, ordersProcessor, balanceProcessor)
 
 	srv.Run()

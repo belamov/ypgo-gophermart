@@ -13,6 +13,11 @@ type OrdersRepository struct {
 	conn *pgx.Conn
 }
 
+func (repo *OrdersRepository) ChangeStatus(order models.Order, status models.OrderStatus) error {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error) {
 	var orders []models.Order
 

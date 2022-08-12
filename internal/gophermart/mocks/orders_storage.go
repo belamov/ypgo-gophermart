@@ -34,6 +34,20 @@ func (m *MockOrdersStorage) EXPECT() *MockOrdersStorageMockRecorder {
 	return m.recorder
 }
 
+// ChangeStatus mocks base method.
+func (m *MockOrdersStorage) ChangeStatus(arg0 models.Order, arg1 models.OrderStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeStatus", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangeStatus indicates an expected call of ChangeStatus.
+func (mr *MockOrdersStorageMockRecorder) ChangeStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeStatus", reflect.TypeOf((*MockOrdersStorage)(nil).ChangeStatus), arg0, arg1)
+}
+
 // CreateNew mocks base method.
 func (m *MockOrdersStorage) CreateNew(arg0, arg1 int) (models.Order, error) {
 	m.ctrl.T.Helper()
