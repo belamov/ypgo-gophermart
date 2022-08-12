@@ -143,3 +143,28 @@ func (s *BalanceRepositoryTestSuite) TestGetUserWithdrawals() {
 	assert.Equal(s.T(), oldMaxWithdrawalOrderID, maxesWithdrawals[0].OrderID)
 	assert.Equal(s.T(), newMaxWithdrawalOrderID, maxesWithdrawals[1].OrderID)
 }
+
+func (s *BalanceRepositoryTestSuite) TestAddAccrual() {
+	user, err := s.usersRepository.CreateNew("max", "password")
+	require.NoError(s.T(), err)
+
+	order, err := s.ordersRepository.CreateNew(1, user.ID)
+	require.NoError(s.T(), err)
+
+	accrualAmount := 10.5
+
+	newOrder, err := s.ordersRepository.FindByID(order.ID)
+	assert.NoError(s.T(), err)
+
+	assert.Equal(s.T(), 0.0, newOrder.Accrual)
+	assert.Equal(s.T(), models.OrderStatusNew, newOrder.Status)
+
+	err = s.balanceRepository.AddAccrual(order.ID, accrualAmount)
+	assert.NoError(s.T(), err)
+
+	updatedOrder, err := s.ordersRepository.FindByID(order.ID)
+	assert.NoError(s.T(), err)
+
+	assert.Equal(s.T(), accrualAmount, updatedOrder.Accrual)
+	assert.Equal(s.T(), models.OrderStatusProcessed, updatedOrder.Status)
+}

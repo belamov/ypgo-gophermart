@@ -3,6 +3,7 @@ module github.com/belamov/ypgo-gophermart
 go 1.18
 
 require (
+	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/jwtauth v1.2.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
@@ -11,12 +12,12 @@ require (
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgtype v1.11.0
 	github.com/jackc/pgx/v4 v4.16.1
+	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )
 
 require (
-	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/goccy/go-json v0.3.5 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

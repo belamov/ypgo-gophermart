@@ -2,15 +2,34 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgtype"
+	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
 	"github.com/jackc/pgx/v4"
 )
 
 type OrdersRepository struct {
 	conn *pgx.Conn
+}
+
+func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
+	conn, err := pgx.Connect(context.Background(), dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	conn.ConnInfo().RegisterDataType(pgtype.DataType{
+		Value: &shopspring.Numeric{},
+		Name:  "numeric",
+		OID:   pgtype.NumericOID,
+	})
+
+	return &OrdersRepository{
+		conn: conn,
+	}, nil
 }
 
 func (repo *OrdersRepository) ChangeStatus(order models.Order, status models.OrderStatus) error {
@@ -49,26 +68,16 @@ func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error)
 	return orders, nil
 }
 
-func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
-	conn, err := pgx.Connect(context.Background(), dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	return &OrdersRepository{
-		conn: conn,
-	}, nil
-}
-
 func (repo *OrdersRepository) FindByID(orderID int) (models.Order, error) {
 	var order models.Order
-	var accrual pgtype.Float8
+	var accrual sql.NullFloat64
 	err := repo.conn.QueryRow(
 		context.Background(),
 		"select id, created_by, uploaded_at, status, accrual from orders where id=$1",
 		orderID,
 	).Scan(&order.ID, &order.CreatedBy, &order.UploadedAt, &order.Status, &accrual)
-	order.Accrual = accrual.Float
+	accrualFloat := accrual.Float64
+	order.Accrual = accrualFloat
 
 	if err == pgx.ErrNoRows {
 		return models.Order{}, nil

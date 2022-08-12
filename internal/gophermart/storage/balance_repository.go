@@ -12,9 +12,16 @@ type BalanceRepository struct {
 	conn *pgx.Conn
 }
 
-func (repo *BalanceRepository) AddAccrual(orderID int, accrual float64) error {
-	// TODO implement me
-	panic("implement me")
+func (repo *BalanceRepository) AddAccrual(orderID int, accrualAmount float64) error {
+	_, err := repo.conn.Exec(
+		context.Background(),
+		"update orders set status=$1, accrual=$2 where id=$3",
+		models.OrderStatusProcessed,
+		accrualAmount,
+		orderID,
+	)
+
+	return err
 }
 
 func (repo *BalanceRepository) GetUserWithdrawals(userID int) ([]models.Withdrawal, error) {
