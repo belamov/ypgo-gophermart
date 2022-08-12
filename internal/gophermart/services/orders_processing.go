@@ -73,7 +73,9 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 		return
 	}
 
-	backOff := backoff.WithContext(backoff.NewExponentialBackOff(), context.Background()) // todo: external context
+	exponentialBackOff := backoff.NewExponentialBackOff()
+	exponentialBackOff.MaxElapsedTime = 0
+	backOff := backoff.WithContext(exponentialBackOff, context.Background()) // todo: external context
 	orderProcessOperation := func() error {
 		accrual, err := o.AccrualService.GetAccrualForOrder(order.ID)
 
