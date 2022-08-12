@@ -7,7 +7,6 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgtype"
-	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -20,12 +19,6 @@ func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	conn.ConnInfo().RegisterDataType(pgtype.DataType{
-		Value: &shopspring.Numeric{},
-		Name:  "numeric",
-		OID:   pgtype.NumericOID,
-	})
 
 	return &OrdersRepository{
 		conn: conn,
