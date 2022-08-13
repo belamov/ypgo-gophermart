@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/server"
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	maxRequestsPerSecond := 50 // todo: move max requests per sec to config
-	accrualService := services.NewAccrualHttpClient(nil, cfg.AccrualSystemAddress, maxRequestsPerSecond)
+	accrualService := services.NewAccrualHttpClient(http.DefaultClient, cfg.AccrualSystemAddress, maxRequestsPerSecond)
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
 	balanceProcessor := services.NewBalanceProcessor(balanceRepo)
 	ordersProcessor := services.NewOrdersProcessor(ordersRepo, balanceProcessor, accrualService)
