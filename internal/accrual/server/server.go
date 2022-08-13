@@ -7,14 +7,16 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/config"
 	"github.com/belamov/ypgo-gophermart/internal/accrual/handlers"
+	"github.com/belamov/ypgo-gophermart/internal/accrual/services"
 )
 
 type Server struct {
-	config *config.Config
+	config       *config.Config
+	orderManager services.OrderManagementInterface
 }
 
 func (s *Server) Run() {
-	r := handlers.NewRouter()
+	r := handlers.NewRouter(s.orderManager)
 
 	httpServer := &http.Server{
 		Addr:              s.config.RunAddress,

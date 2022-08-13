@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/belamov/ypgo-gophermart/internal"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 	"github.com/cenkalti/backoff/v4"
@@ -59,7 +60,7 @@ func (o *OrdersProcessor) ValidateOrderID(orderID int) error {
 		return errors.New("order ID should be greater than zero")
 	}
 
-	if !validLuhn(orderID) {
+	if !internal.ValidLuhn(orderID) {
 		return errors.New("order ID is not validated by Luhn algorithm")
 	}
 

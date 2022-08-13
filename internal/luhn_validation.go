@@ -1,7 +1,7 @@
-package services
+package internal
 
 // ValidLuhn check number is valid or not based on Luhn algorithm
-func validLuhn(number int) bool {
+func ValidLuhn(number int) bool {
 	return (number%10+checksum(number/10))%10 == 0 //nolint:gomnd
 }
 
