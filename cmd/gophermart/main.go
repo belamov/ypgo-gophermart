@@ -38,7 +38,7 @@ func main() {
 	}
 
 	maxRequestsPerSecond := 50 // todo: move max requests per sec to config
-	accrualService := services.NewAccrualHttpClient(http.DefaultClient, cfg.AccrualSystemAddress, maxRequestsPerSecond)
+	accrualService := services.NewAccrualHTTPClient(http.DefaultClient, cfg.AccrualSystemAddress, maxRequestsPerSecond)
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
 	balanceProcessor := services.NewBalanceProcessor(balanceRepo)
 	ordersProcessor := services.NewOrdersProcessor(ordersRepo, balanceProcessor, accrualService)

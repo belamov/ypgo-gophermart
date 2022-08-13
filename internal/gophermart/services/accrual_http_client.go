@@ -11,13 +11,13 @@ import (
 	"golang.org/x/time/rate"
 )
 
-type AccrualHttpClient struct {
+type AccrualHTTPClient struct {
 	client      *http.Client
 	ratelimiter *rate.Limiter
 	url         string
 }
 
-func (c *AccrualHttpClient) GetAccrualForOrder(ctx context.Context, orderID int) (float64, error) {
+func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int) (float64, error) {
 	req, err := c.getRequest(orderID)
 	if err != nil {
 		return 0, err
@@ -52,21 +52,21 @@ func (c *AccrualHttpClient) GetAccrualForOrder(ctx context.Context, orderID int)
 	return accrualResp.getAccrualAmount(), nil
 }
 
-func NewAccrualHttpClient(client *http.Client, serviceURL string, maxRequestsPerSecond int) *AccrualHttpClient {
+func NewAccrualHTTPClient(client *http.Client, serviceURL string, maxRequestsPerSecond int) *AccrualHTTPClient {
 	rl := rate.NewLimiter(rate.Every(time.Second), maxRequestsPerSecond)
-	return &AccrualHttpClient{
+	return &AccrualHTTPClient{
 		ratelimiter: rl,
 		client:      client,
 		url:         serviceURL,
 	}
 }
 
-func (c *AccrualHttpClient) getRequest(orderID int) (*http.Request, error) {
+func (c *AccrualHTTPClient) getRequest(orderID int) (*http.Request, error) {
 	url := fmt.Sprintf("%s/%v", c.url, orderID)
 	return http.NewRequest("GET", url, nil)
 }
 
-func (c *AccrualHttpClient) doRequest(ctx context.Context, req *http.Request) (*http.Response, error) {
+func (c *AccrualHTTPClient) doRequest(ctx context.Context, req *http.Request) (*http.Response, error) {
 	err := c.ratelimiter.Wait(ctx)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (r *accrualResponse) getAccrualAmount() float64 {
 	return r.Accrual
 }
 
-func (c *AccrualHttpClient) parseResponse(resp *http.Response) (accrualResponse, error) {
+func (c *AccrualHTTPClient) parseResponse(resp *http.Response) (accrualResponse, error) {
 	var result accrualResponse
 	err := json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
