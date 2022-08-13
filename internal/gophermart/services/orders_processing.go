@@ -77,7 +77,7 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 	exponentialBackOff.MaxElapsedTime = 0
 	backOff := backoff.WithContext(exponentialBackOff, context.Background()) // todo: external context
 	orderProcessOperation := func() error {
-		accrual, err := o.AccrualService.GetAccrualForOrder(order.ID)
+		accrual, err := o.AccrualService.GetAccrualForOrder(context.Background(), order.ID) // todo: external context
 
 		// order is not yet proceeded, we will try to fetch it later
 		if errors.Is(err, ErrOrderIsNotYetProceeded) {

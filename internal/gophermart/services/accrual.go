@@ -1,9 +1,12 @@
 package services
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 type AccrualInfoProvider interface {
-	GetAccrualForOrder(orderID int) (float64, error)
+	GetAccrualForOrder(ctx context.Context, orderID int) (float64, error)
 }
 
 var (

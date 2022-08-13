@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,16 +35,16 @@ func (m *MockAccrualInfoProvider) EXPECT() *MockAccrualInfoProviderMockRecorder 
 }
 
 // GetAccrualForOrder mocks base method.
-func (m *MockAccrualInfoProvider) GetAccrualForOrder(arg0 int) (float64, error) {
+func (m *MockAccrualInfoProvider) GetAccrualForOrder(arg0 context.Context, arg1 int) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAccrualForOrder", arg0)
+	ret := m.ctrl.Call(m, "GetAccrualForOrder", arg0, arg1)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAccrualForOrder indicates an expected call of GetAccrualForOrder.
-func (mr *MockAccrualInfoProviderMockRecorder) GetAccrualForOrder(arg0 interface{}) *gomock.Call {
+func (mr *MockAccrualInfoProviderMockRecorder) GetAccrualForOrder(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccrualForOrder", reflect.TypeOf((*MockAccrualInfoProvider)(nil).GetAccrualForOrder), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccrualForOrder", reflect.TypeOf((*MockAccrualInfoProvider)(nil).GetAccrualForOrder), arg0, arg1)
 }

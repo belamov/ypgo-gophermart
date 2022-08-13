@@ -69,7 +69,7 @@ func TestOrdersProcessor_AddOrder(t *testing.T) {
 			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
 
 			mockOrdersStorage.EXPECT().ChangeStatus(gomock.Any(), models.OrderStatusProcessing).Return(nil).AnyTimes()
-			mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any()).Return(100.0, nil).AnyTimes()
+			mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), gomock.Any()).Return(100.0, nil).AnyTimes()
 			mockBalance.EXPECT().AddAccrual(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 
 			ordersProcessor := NewOrdersProcessor(mockOrdersStorage, mockBalance, mockAccrual)
@@ -102,7 +102,7 @@ func TestOrdersProcessor_ProcessOrderFirstFetchSuccess(t *testing.T) {
 	}
 
 	mockOrdersStorage.EXPECT().ChangeStatus(order, models.OrderStatusProcessing).Return(nil).Times(1)
-	mockAccrual.EXPECT().GetAccrualForOrder(order.ID).Return(100.0, nil).Times(1)
+	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(100.0, nil).Times(1)
 	mockBalance.EXPECT().AddAccrual(order, 100.0).Return(nil).Times(1)
 	ordersProcessor.ProcessOrder(order)
 }
@@ -126,9 +126,9 @@ func TestOrdersProcessor_ProcessOrderThirdFetchSuccess(t *testing.T) {
 	}
 
 	mockOrdersStorage.EXPECT().ChangeStatus(order, models.OrderStatusProcessing).Return(nil).Times(1)
-	mockAccrual.EXPECT().GetAccrualForOrder(order.ID).Return(0.0, ErrOrderIsNotYetProceeded).Times(1)
-	mockAccrual.EXPECT().GetAccrualForOrder(order.ID).Return(0.0, ErrOrderIsNotYetProceeded).Times(1)
-	mockAccrual.EXPECT().GetAccrualForOrder(order.ID).Return(100.0, nil).Times(1)
+	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(0.0, ErrOrderIsNotYetProceeded).Times(1)
+	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(0.0, ErrOrderIsNotYetProceeded).Times(1)
+	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(100.0, nil).Times(1)
 	mockBalance.EXPECT().AddAccrual(order, 100.0).Return(nil).Times(1)
 	ordersProcessor.ProcessOrder(order)
 }
@@ -152,8 +152,8 @@ func TestOrdersProcessor_ProcessOrderInvalidAccrual(t *testing.T) {
 	}
 
 	mockOrdersStorage.EXPECT().ChangeStatus(order, models.OrderStatusProcessing).Return(nil).Times(1)
-	mockAccrual.EXPECT().GetAccrualForOrder(order.ID).Return(0.0, ErrOrderIsNotYetProceeded).Times(1)
-	mockAccrual.EXPECT().GetAccrualForOrder(order.ID).Return(0.0, ErrInvalidOrderForAccrual).Times(1)
+	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(0.0, ErrOrderIsNotYetProceeded).Times(1)
+	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(0.0, ErrInvalidOrderForAccrual).Times(1)
 	mockOrdersStorage.EXPECT().ChangeStatus(order, models.OrderStatusInvalid).Return(nil).Times(1)
 	ordersProcessor.ProcessOrder(order)
 }
