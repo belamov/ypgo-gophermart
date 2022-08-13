@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/config"
+	"github.com/belamov/ypgo-gophermart/internal/accrual/server"
 )
 
 func main() {
@@ -11,4 +12,8 @@ func main() {
 
 	cfg.Init()
 	flag.Parse()
+
+	srv := server.New(cfg)
+
+	srv.Run()
 }
