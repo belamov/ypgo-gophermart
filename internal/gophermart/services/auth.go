@@ -97,14 +97,19 @@ func (a *JWTAuth) AuthMiddleware() func(h http.Handler) http.Handler {
 	verifier := jwtauth.Verifier(a.tokenAuth)
 	authenticator := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Println("authenticating token")
 			token, _, err := jwtauth.FromContext(r.Context())
 
 			if err != nil {
+				log.Println("token from context error")
+				log.Println(err)
+
 				http.Error(w, err.Error(), 401)
 				return
 			}
 
 			if token == nil {
+				log.Println("token is nil")
 				http.Error(w, http.StatusText(401), 401)
 				return
 			}
