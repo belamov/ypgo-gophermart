@@ -28,8 +28,9 @@ type JWTAuth struct {
 
 func (a *JWTAuth) GetUserID(r *http.Request) int {
 	_, claims, _ := jwtauth.FromContext(r.Context())
-	userID := claims[UserIDClaim].(int)
-	return userID
+	userID := claims[UserIDClaim].(float64)
+
+	return int(userID)
 }
 
 func NewAuth(repo storage.UsersStorage, secret string) *JWTAuth {
@@ -95,7 +96,7 @@ func (a *JWTAuth) AuthMiddleware() func(h http.Handler) http.Handler {
 	authenticator := jwtauth.Authenticator
 
 	return func(h http.Handler) http.Handler {
-		return authenticator(verifier(h))
+		return verifier(authenticator(h))
 	}
 }
 

@@ -10,6 +10,8 @@ import (
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestHandler_Register(t *testing.T) {
@@ -31,11 +33,11 @@ func TestHandler_Register(t *testing.T) {
 		body string
 	}{
 		{
-			name: "with valid validCredentials",
+			name: "with valid credentials",
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "",
-				header:     wantHeader{name: "Authorization", value: "BEARER token"},
+				header:     wantHeader{name: "Authorization", value: "token"},
 			},
 			body: "{\"login\": \"login\", \"password\":\"password\"}",
 		},
@@ -129,7 +131,7 @@ func TestHandler_Login(t *testing.T) {
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "",
-				header:     wantHeader{name: "Authorization", value: "BEARER token"},
+				header:     wantHeader{name: "Authorization", value: "token"},
 			},
 			body: "{\"login\": \"login\", \"password\":\"password\"}",
 		},
@@ -198,4 +200,33 @@ func TestHandler_Login(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestHandler_Middleware(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockUsersStorage := mocks.NewMockUsersStorage(ctrl)
+	password, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	require.NoError(t, err)
+	user := models.User{ID: 100, HashedPassword: string(password)}
+	mockUsersStorage.EXPECT().FindByLogin("login").Return(user, nil)
+	auth := services.NewAuth(mockUsersStorage, "secret")
+
+	mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
+	mockOrders.EXPECT().GetUsersOrders(gomock.Any()).Return(nil, nil).AnyTimes()
+
+	mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
+	r := NewRouter(auth, mockOrders, mockBalance)
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	result, _ := testRequest(t, ts, http.MethodPost, "/api/user/login", "{\"login\": \"login\",\"password\": \"password\"}")
+	defer result.Body.Close()
+	token := result.Header.Get("Authorization")
+	assert.NotEmpty(t, token)
+
+	result, _ = testRequestWithAuth(t, ts, http.MethodGet, "/api/user/orders", "", token)
+	defer result.Body.Close()
+
+	assert.Equal(t, http.StatusNoContent, result.StatusCode)
 }

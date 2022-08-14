@@ -42,6 +42,37 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	return resp, string(bytes.TrimSpace(respBody))
 }
 
+func testRequestWithAuth(t *testing.T, ts *httptest.Server, method, path string, body string, token string) (*http.Response, string) {
+	t.Helper()
+
+	var err error
+	var req *http.Request
+	var resp *http.Response
+	var respBody []byte
+
+	req, err = http.NewRequest(method, ts.URL+path, strings.NewReader(body))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "BEARER "+token)
+
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	resp, err = client.Do(req)
+	require.NoError(t, err)
+
+	respBody, err = ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+
+	require.NoError(t, err)
+
+	return resp, string(bytes.TrimSpace(respBody))
+}
+
 func emptyMiddleware(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
