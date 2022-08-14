@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/server"
@@ -12,6 +14,7 @@ import (
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
 	cfg := config.New()
 
 	cfg.Init()
