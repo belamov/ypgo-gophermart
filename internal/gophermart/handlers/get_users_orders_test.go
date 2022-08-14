@@ -103,6 +103,7 @@ func TestHandler_GetUsersOrders(t *testing.T) {
 			defer result.Body.Close()
 
 			assert.Equal(t, tt.want.status, result.StatusCode)
+			assert.Equal(t, "application/json", result.Header.Get("Content-Type"))
 			if tt.want.json != "" {
 				assert.JSONEq(t, tt.want.json, body)
 			}

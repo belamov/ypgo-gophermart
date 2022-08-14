@@ -20,6 +20,8 @@ func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+
 	if len(usersOrders) == 0 {
 		w.WriteHeader(http.StatusNoContent)
 		return
@@ -49,7 +51,6 @@ func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	if _, err = w.Write(out); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

@@ -68,6 +68,7 @@ func TestHandler_GetUserBalance(t *testing.T) {
 			assert.Equal(t, tt.want.status, result.StatusCode)
 			if tt.want.json != "" {
 				assert.JSONEq(t, tt.want.json, body)
+				assert.Equal(t, "application/json", result.Header.Get("Content-Type"))
 			}
 		})
 	}
