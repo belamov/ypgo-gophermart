@@ -18,7 +18,7 @@ func New() *Config {
 }
 
 func (c *Config) Init() {
-	flag.StringVar(&c.RunAddress, "a", getEnv("RUN_ADDRESS", ":8080"), "host to listen on")
+	flag.StringVar(&c.RunAddress, "a", getEnv("RUN_ADDRESS", ":8081"), "host to listen on")
 	flag.StringVar(&c.DatabaseURI, "d", getEnv("DATABASE_URI", ""), "database dsn for connecting to postgres")
 }
 

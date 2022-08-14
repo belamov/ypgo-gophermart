@@ -35,7 +35,7 @@ services:
     volumes:
       - ../:/usr/src/app/
     environment:
-      - DATABASE_URI=postgres://postgres:postgres@db_accrual:5432/accrual?sslmode=disable
+      - DATABASE_URI=postgres://postgres:postgres@db_accrual:5433/accrual?sslmode=disable
       - MIGRATIONS_PATH=file:///usr/src/app/internal/accrual/storage/migrations
     ports:
       - "8081:8080"

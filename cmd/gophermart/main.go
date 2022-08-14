@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	panic(1)
 	log.SetOutput(os.Stdout)
 	cfg := config.New()
 
