@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
-	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -73,11 +72,11 @@ func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error)
 
 	for rows.Next() {
 		model := models.Order{}
-		var accrual pgtype.Float8
+		var accrual sql.NullFloat64
 		if err = rows.Scan(&model.ID, &model.CreatedBy, &model.UploadedAt, &model.Status, &accrual); err != nil {
 			return nil, err
 		}
-		model.Accrual = accrual.Float
+		model.Accrual = accrual.Float64
 		orders = append(orders, model)
 	}
 
