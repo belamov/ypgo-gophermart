@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-	panic(1)
 	log.SetOutput(os.Stdout)
 	cfg := config.New()
 
@@ -23,22 +22,22 @@ func main() {
 
 	err := storage.RunMigrations(cfg.DatabaseURI)
 	if err != nil {
-		panic(fmt.Sprintf("could not run migrations: %v", err))
+		log.Panic(fmt.Sprintf("could not run migrations: %v", err))
 	}
 
 	userRepo, err := storage.NewUserRepository(cfg.DatabaseURI)
 	if err != nil {
-		panic(fmt.Sprintf("could not initialize user repo: %v", err))
+		log.Panic(fmt.Sprintf("could not initialize user repo: %v", err))
 	}
 
 	ordersRepo, err := storage.NewOrdersRepository(cfg.DatabaseURI)
 	if err != nil {
-		panic(fmt.Sprintf("could not initialize orders repo: %v", err))
+		log.Panic(fmt.Sprintf("could not initialize orders repo: %v", err))
 	}
 
 	balanceRepo, err := storage.NewBalanceRepository(cfg.DatabaseURI)
 	if err != nil {
-		panic(fmt.Sprintf("could not initialize balance repo: %v", err))
+		log.Panic(fmt.Sprintf("could not initialize balance repo: %v", err))
 	}
 
 	maxRequestsPerSecond := 50 // todo: move max requests per sec to config
