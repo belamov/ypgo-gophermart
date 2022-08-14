@@ -116,3 +116,25 @@ func (s *OrdersRepositoryTestSuite) TestGetUsersOrders() {
 	assert.Equal(s.T(), maxOldOrder.ID, maxesOrders[1].ID)
 	assert.Equal(s.T(), maxOldOrder.CreatedBy, max.ID)
 }
+
+func (s *OrdersRepositoryTestSuite) TestChangeStatus() {
+	max, err := s.usersRepository.CreateNew("max", "password")
+	require.NoError(s.T(), err)
+
+	order, err := s.ordersRepository.CreateNew(123, max.ID)
+	require.NoError(s.T(), err)
+
+	err = s.ordersRepository.ChangeStatus(order, models.OrderStatusProcessing)
+	assert.NoError(s.T(), err)
+
+	updatedOrder, err := s.ordersRepository.FindByID(order.ID)
+	require.NoError(s.T(), err)
+	assert.Equal(s.T(), models.OrderStatusProcessing, updatedOrder.Status)
+
+	err = s.ordersRepository.ChangeStatus(order, models.OrderStatusProcessed)
+	assert.NoError(s.T(), err)
+
+	updatedOrder, err = s.ordersRepository.FindByID(order.ID)
+	require.NoError(s.T(), err)
+	assert.Equal(s.T(), models.OrderStatusProcessed, updatedOrder.Status)
+}

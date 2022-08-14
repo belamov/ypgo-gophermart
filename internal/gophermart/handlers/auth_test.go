@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
@@ -8,9 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestHandler_Register(t *testing.T) {
@@ -36,7 +37,7 @@ func TestHandler_Register(t *testing.T) {
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "",
-				header:     wantHeader{name: "Authorization", value: "token"},
+				header:     wantHeader{name: "Authorization", value: "Bearer token"},
 			},
 			body: "{\"login\": \"login\", \"password\":\"password\"}",
 		},
@@ -130,7 +131,7 @@ func TestHandler_Login(t *testing.T) {
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "",
-				header:     wantHeader{name: "Authorization", value: "token"},
+				header:     wantHeader{name: "Authorization", value: "Bearer token"},
 			},
 			body: "{\"login\": \"login\", \"password\":\"password\"}",
 		},

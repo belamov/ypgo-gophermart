@@ -26,8 +26,14 @@ func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
 }
 
 func (repo *OrdersRepository) ChangeStatus(order models.Order, status models.OrderStatus) error {
-	// TODO implement me
-	panic("implement me")
+	_, err := repo.conn.Exec(
+		context.Background(),
+		"update orders set status=$1 where id=$2",
+		status,
+		order.ID,
+	)
+
+	return err
 }
 
 func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error) {
