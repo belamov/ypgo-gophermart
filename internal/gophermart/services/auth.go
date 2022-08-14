@@ -126,7 +126,7 @@ func (a *JWTAuth) AuthMiddleware() func(h http.Handler) http.Handler {
 	}
 
 	return func(h http.Handler) http.Handler {
-		return authenticator(verifier(h))
+		return verifier(authenticator(h))
 	}
 }
 
