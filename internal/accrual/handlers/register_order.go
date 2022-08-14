@@ -45,7 +45,5 @@ func (h *Handler) RegisterOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// todo: order processing
-
 	w.WriteHeader(http.StatusAccepted)
 }
