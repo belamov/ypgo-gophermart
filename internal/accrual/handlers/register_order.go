@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -18,6 +19,8 @@ type newOrderRequest struct {
 func (h *Handler) RegisterOrder(w http.ResponseWriter, r *http.Request) {
 	reader, err := getDecompressedReader(r)
 	if err != nil {
+		log.Println("unexpected error in register order handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -41,6 +44,8 @@ func (h *Handler) RegisterOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
+		log.Println("unexpected error in register order handler:")
+		log.Println(err.Error())
 		http.Error(w, "wrong order id", http.StatusInternalServerError)
 		return
 	}

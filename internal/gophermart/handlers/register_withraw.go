@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -17,12 +18,16 @@ type RegisterWithdrawRequest struct {
 func (h *Handler) RegisterWithdraw(w http.ResponseWriter, r *http.Request) {
 	reader, err := getDecompressedReader(r)
 	if err != nil {
+		log.Println("unexpected error in register withdraws handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	var request RegisterWithdrawRequest
 	if err := json.NewDecoder(reader).Decode(&request); err != nil {
+		log.Println("unexpected error in register withdraws handler:")
+		log.Println(err.Error())
 		http.Error(w, "cannot decode json", http.StatusBadRequest)
 		return
 	}
@@ -34,6 +39,8 @@ func (h *Handler) RegisterWithdraw(w http.ResponseWriter, r *http.Request) {
 
 	userID := h.auth.GetUserID(r)
 	if userID == 0 {
+		log.Println("unexpected error in register withdraws handler:")
+		log.Println("user id not found")
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
@@ -56,6 +63,8 @@ func (h *Handler) RegisterWithdraw(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
+		log.Println("unexpected error in register withdraws handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

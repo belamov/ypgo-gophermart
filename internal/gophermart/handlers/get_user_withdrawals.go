@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
 
 func (h *Handler) GetUserWithdrawals(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	userID := h.auth.GetUserID(r)
 	if userID == 0 {
 		http.Error(w, "", http.StatusUnauthorized)
@@ -16,6 +19,8 @@ func (h *Handler) GetUserWithdrawals(w http.ResponseWriter, r *http.Request) {
 
 	userWithdrawals, err := h.balanceProcessor.GetUserWithdrawals(userID)
 	if err != nil {
+		log.Println("unexpected error in get user withdraws handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -42,12 +47,15 @@ func (h *Handler) GetUserWithdrawals(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.Marshal(result)
 	if err != nil {
+		log.Println("unexpected error in get user withdraws handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	if _, err = w.Write(out); err != nil {
+		log.Println("unexpected error in get user withdraws handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

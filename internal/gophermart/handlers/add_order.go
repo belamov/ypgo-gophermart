@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -12,12 +13,16 @@ import (
 func (h *Handler) AddOrder(w http.ResponseWriter, r *http.Request) {
 	reader, err := getDecompressedReader(r)
 	if err != nil {
+		log.Println("unexpected error in add order handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	rawOrderID, err := io.ReadAll(reader)
 	if err != nil {
+		log.Println("unexpected error in add order handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -60,6 +65,8 @@ func handleOrderAddError(err error, userID int, w http.ResponseWriter) {
 		return
 	}
 	if err != nil {
+		log.Println("unexpected error in add order handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

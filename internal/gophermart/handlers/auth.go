@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
@@ -13,6 +14,8 @@ import (
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	reader, err := getDecompressedReader(r)
 	if err != nil {
+		log.Println("unexpected error in register handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -38,12 +41,15 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		http.Error(w, "cannot register user", http.StatusInternalServerError)
+		log.Println("unexpected error in register handler:")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	token, err := h.auth.GenerateToken(user)
 	if err != nil {
+		log.Println("unexpected error in register handler:")
+		log.Println(err.Error())
 		http.Error(w, "cannot generate token", http.StatusInternalServerError)
 		return
 	}
@@ -54,6 +60,8 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	reader, err := getDecompressedReader(r)
 	if err != nil {
+		log.Println("unexpected error in login handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -79,12 +87,16 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
+		log.Println("unexpected error in login handler:")
+		log.Println(err.Error())
 		http.Error(w, "cannot login user", http.StatusInternalServerError)
 		return
 	}
 
 	token, err := h.auth.GenerateToken(user)
 	if err != nil {
+		log.Println("unexpected error in login handler:")
+		log.Println(err.Error())
 		http.Error(w, "cannot generate token", http.StatusInternalServerError)
 		return
 	}

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,6 +17,8 @@ func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 
 	usersOrders, err := h.ordersProcessor.GetUsersOrders(userID)
 	if err != nil {
+		log.Println("unexpected error in get user orders handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -47,11 +50,15 @@ func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.Marshal(result)
 	if err != nil {
+		log.Println("unexpected error in get user orders handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if _, err = w.Write(out); err != nil {
+		log.Println("unexpected error in get user orders handler:")
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
