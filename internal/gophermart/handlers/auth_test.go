@@ -1,10 +1,6 @@
 package handlers
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"testing"
-
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
@@ -12,6 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func TestHandler_Register(t *testing.T) {
@@ -209,7 +208,7 @@ func TestHandler_Middleware(t *testing.T) {
 	password, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
 	require.NoError(t, err)
 	user := models.User{ID: 100, HashedPassword: string(password)}
-	mockUsersStorage.EXPECT().FindByLogin("login").Return(user, nil)
+	mockUsersStorage.EXPECT().CreateNew(gomock.Any(), gomock.Any()).Return(user, nil)
 	auth := services.NewAuth(mockUsersStorage, "secret")
 
 	mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
@@ -220,7 +219,7 @@ func TestHandler_Middleware(t *testing.T) {
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
-	result, _ := testRequest(t, ts, http.MethodPost, "/api/user/login", "{\"login\": \"login\",\"password\": \"password\"}")
+	result, _ := testRequest(t, ts, http.MethodPost, "/api/user/register", "{\"login\": \"login\",\"password\": \"password\"}")
 	defer result.Body.Close()
 	token := result.Header.Get("Authorization")
 	assert.NotEmpty(t, token)

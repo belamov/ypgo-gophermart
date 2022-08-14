@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"github.com/lestrrat-go/jwx/jwt"
+	"log"
 	"net/http"
 	"time"
 
@@ -93,7 +95,30 @@ func (a *JWTAuth) GenerateToken(user models.User) (string, error) {
 
 func (a *JWTAuth) AuthMiddleware() func(h http.Handler) http.Handler {
 	verifier := jwtauth.Verifier(a.tokenAuth)
-	authenticator := jwtauth.Authenticator
+	authenticator := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token, _, err := jwtauth.FromContext(r.Context())
+
+			if err != nil {
+				http.Error(w, err.Error(), 401)
+				return
+			}
+
+			if token == nil {
+				http.Error(w, http.StatusText(401), 401)
+				return
+			}
+			validationError := jwt.Validate(token)
+			if validationError != nil {
+				log.Printf("%v", validationError)
+				http.Error(w, http.StatusText(401), 401)
+				return
+			}
+
+			// Token is authenticated, pass it through
+			next.ServeHTTP(w, r)
+		})
+	}
 
 	return func(h http.Handler) http.Handler {
 		return verifier(authenticator(h))
