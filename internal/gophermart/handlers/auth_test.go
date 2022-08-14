@@ -221,10 +221,10 @@ func TestHandler_Middleware(t *testing.T) {
 
 	result, _ := testRequest(t, ts, http.MethodPost, "/api/user/register", "{\"login\": \"login\",\"password\": \"password\"}")
 	defer result.Body.Close()
-	token := result.Header.Get("Authorization")
-	assert.NotEmpty(t, token)
+	authHeader := result.Header.Get("Authorization")
+	assert.NotEmpty(t, authHeader)
 
-	result, _ = testRequestWithAuth(t, ts, http.MethodGet, "/api/user/orders", "", token)
+	result, _ = testRequestWithAuth(t, ts, http.MethodGet, "/api/user/orders", "", authHeader)
 	defer result.Body.Close()
 
 	assert.Equal(t, http.StatusNoContent, result.StatusCode)

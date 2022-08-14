@@ -42,7 +42,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	return resp, string(bytes.TrimSpace(respBody))
 }
 
-func testRequestWithAuth(t *testing.T, ts *httptest.Server, method, path string, body string, token string) (*http.Response, string) {
+func testRequestWithAuth(t *testing.T, ts *httptest.Server, method, path string, body string, authHeader string) (*http.Response, string) {
 	t.Helper()
 
 	var err error
@@ -54,7 +54,7 @@ func testRequestWithAuth(t *testing.T, ts *httptest.Server, method, path string,
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "BEARER "+token)
+	req.Header.Set("Authorization", authHeader)
 
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {

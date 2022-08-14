@@ -93,5 +93,5 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func addAuthHeader(token string, w http.ResponseWriter) {
-	w.Header().Set("Authorization", token)
+	w.Header().Set("Authorization", "Bearer "+token)
 }
