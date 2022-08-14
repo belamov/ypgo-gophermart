@@ -81,6 +81,21 @@ func (s *OrdersRepositoryTestSuite) TestCreateNew() {
 	assert.Equal(s.T(), models.OrderStatusNew, createdOrder.Status)
 }
 
+func (s *OrdersRepositoryTestSuite) TestCreateNewWithBigId() {
+	user, err := s.usersRepository.CreateNew("login", "password")
+	require.NoError(s.T(), err)
+
+	orderID := 8805468143049
+
+	createdOrder, err := s.ordersRepository.CreateNew(orderID, user.ID)
+	require.NoError(s.T(), err)
+	expectedCreatedOrder := models.Order{ID: orderID, CreatedBy: user.ID}
+	assert.True(s.T(), s.exists(expectedCreatedOrder))
+	assert.Equal(s.T(), orderID, createdOrder.ID)
+	assert.Equal(s.T(), user.ID, createdOrder.CreatedBy)
+	assert.Equal(s.T(), models.OrderStatusNew, createdOrder.Status)
+}
+
 func (s *OrdersRepositoryTestSuite) TestFindByID() {
 	user, err := s.usersRepository.CreateNew("login", "password")
 	require.NoError(s.T(), err)

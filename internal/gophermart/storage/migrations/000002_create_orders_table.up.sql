@@ -1,5 +1,5 @@
 create table if not exists orders(
-    id int unique not null,
+    id bigint unique not null,
     created_by int not null,
     uploaded_at timestamp not null default now(),
     status smallint not null,
