@@ -5,8 +5,6 @@ import (
 	"errors"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v4"

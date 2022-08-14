@@ -25,7 +25,7 @@ func TestOrdersRepositoryTestSuite(t *testing.T) {
 func (s *OrdersRepositoryTestSuite) SetupSuite() {
 	dsn := os.Getenv("DATABASE_DSN")
 	if dsn == "" {
-		dsn = "postgres://postgres:postgres@db:5432/praktikum?sslmode=disable"
+		dsn = "postgres://postgres:postgres@db_gophermart:5432/praktikum?sslmode=disable"
 	}
 	ordersRepository, err := NewOrdersRepository(dsn)
 	require.NoError(s.T(), err)

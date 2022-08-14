@@ -3,15 +3,17 @@ package storage
 import (
 	"errors"
 	"fmt"
-	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"os"
 
+	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 type OrdersStorage interface {
-	IsRegistered(orderID int) (bool, error)
-	RegisterOrder(orderID int, items []models.OrderItem) error
+	Exists(orderID int) (bool, error)
+	CreateNew(orderID int, items []models.OrderItem) error
 }
 
 func RunMigrations(dsn string) error {

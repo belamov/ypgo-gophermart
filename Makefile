@@ -29,7 +29,7 @@ up: build ## Run app
 	$(docker_compose_bin) --file "$(docker_compose_yml)" up --remove-orphans
 
 mocks_delete:
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run  --rm $(app_container_name) bash -c "rm -r -f internal/gophermart/mocks/"
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run  --rm $(app_container_name) bash -c "rm -r -f internal/gophermart/mocks/ internal/accrual/mocks/"
 
 mocks_regenerate: mocks_delete mocks_generate
 
@@ -54,7 +54,8 @@ gofumpt:
 	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) gofumpt -l -w .
 
 test: ## Execute tests
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./...
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./internal/gophermart/...
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm accrual go test -v ./internal/accrual/...
 
 check: build gofumpt lint test  ## Run tests and code analysis
 

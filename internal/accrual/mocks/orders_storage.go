@@ -34,31 +34,31 @@ func (m *MockOrdersStorage) EXPECT() *MockOrdersStorageMockRecorder {
 	return m.recorder
 }
 
-// IsRegistered mocks base method.
-func (m *MockOrdersStorage) IsRegistered(arg0 int) (bool, error) {
+// CreateNew mocks base method.
+func (m *MockOrdersStorage) CreateNew(arg0 int, arg1 []models.OrderItem) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsRegistered", arg0)
+	ret := m.ctrl.Call(m, "CreateNew", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateNew indicates an expected call of CreateNew.
+func (mr *MockOrdersStorageMockRecorder) CreateNew(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockOrdersStorage)(nil).CreateNew), arg0, arg1)
+}
+
+// Exists mocks base method.
+func (m *MockOrdersStorage) Exists(arg0 int) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Exists", arg0)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// IsRegistered indicates an expected call of IsRegistered.
-func (mr *MockOrdersStorageMockRecorder) IsRegistered(arg0 interface{}) *gomock.Call {
+// Exists indicates an expected call of Exists.
+func (mr *MockOrdersStorageMockRecorder) Exists(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsRegistered", reflect.TypeOf((*MockOrdersStorage)(nil).IsRegistered), arg0)
-}
-
-// RegisterOrder mocks base method.
-func (m *MockOrdersStorage) RegisterOrder(arg0 int, arg1 []models.OrderItem) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterOrder", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RegisterOrder indicates an expected call of RegisterOrder.
-func (mr *MockOrdersStorageMockRecorder) RegisterOrder(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterOrder", reflect.TypeOf((*MockOrdersStorage)(nil).RegisterOrder), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockOrdersStorage)(nil).Exists), arg0)
 }

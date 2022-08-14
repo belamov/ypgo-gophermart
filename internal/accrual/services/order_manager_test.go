@@ -1,11 +1,12 @@
 package services
 
 import (
+	"testing"
+
 	"github.com/belamov/ypgo-gophermart/internal/accrual/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestOrderManager_RegisterNewOrder(t *testing.T) {
@@ -27,9 +28,9 @@ func TestOrderManager_RegisterNewOrder(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockStorage := mocks.NewMockOrdersStorage(ctrl)
-			mockStorage.EXPECT().IsRegistered(alreadyRegisteredOrderID).Return(true, nil).AnyTimes()
-			mockStorage.EXPECT().IsRegistered(newOrderID).Return(false, nil).AnyTimes()
-			mockStorage.EXPECT().RegisterOrder(tt.orderID, tt.orderItems).Return(nil).AnyTimes()
+			mockStorage.EXPECT().Exists(alreadyRegisteredOrderID).Return(true, nil).AnyTimes()
+			mockStorage.EXPECT().Exists(newOrderID).Return(false, nil).AnyTimes()
+			mockStorage.EXPECT().CreateNew(tt.orderID, tt.orderItems).Return(nil).AnyTimes()
 
 			service := NewOrderManager(mockStorage)
 

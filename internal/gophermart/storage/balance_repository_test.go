@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-const testDSN = "postgres://postgres:postgres@db:5432/praktikum?sslmode=disable"
+const testDSN = "postgres://postgres:postgres@db_gophermart:5432/praktikum?sslmode=disable"
 
 type BalanceRepositoryTestSuite struct {
 	suite.Suite

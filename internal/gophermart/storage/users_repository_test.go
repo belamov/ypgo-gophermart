@@ -23,7 +23,7 @@ func TestUsersRepositoryTestSuite(t *testing.T) {
 func (s *UsersRepositoryTestSuite) SetupSuite() {
 	dsn := os.Getenv("DATABASE_DSN")
 	if dsn == "" {
-		dsn = "postgres://postgres:postgres@db:5432/praktikum?sslmode=disable"
+		dsn = "postgres://postgres:postgres@db_gophermart:5432/praktikum?sslmode=disable"
 	}
 	repo, err := NewUserRepository(dsn)
 	require.NoError(s.T(), err)

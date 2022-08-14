@@ -2,10 +2,10 @@ package services
 
 import (
 	"errors"
-	"github.com/belamov/ypgo-gophermart/internal/accrual/storage"
 
 	"github.com/belamov/ypgo-gophermart/internal"
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
+	"github.com/belamov/ypgo-gophermart/internal/accrual/storage"
 )
 
 type OrderManagementInterface interface {
@@ -24,7 +24,7 @@ func NewOrderManager(orderStorage storage.OrdersStorage) *OrderManager {
 }
 
 func (o *OrderManager) RegisterNewOrder(orderID int, orderItems []models.OrderItem) error {
-	isOrderRegistered, err := o.orderStorage.IsRegistered(orderID)
+	isOrderRegistered, err := o.orderStorage.Exists(orderID)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (o *OrderManager) RegisterNewOrder(orderID int, orderItems []models.OrderIt
 		return ErrOrderIsAlreadyRegistered
 	}
 
-	err = o.orderStorage.RegisterOrder(orderID, orderItems)
+	err = o.orderStorage.CreateNew(orderID, orderItems)
 	if err != nil {
 		return err
 	}

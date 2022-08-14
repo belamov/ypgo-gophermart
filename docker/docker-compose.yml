@@ -1,6 +1,7 @@
 version: '3.5'
 
 services:
+
   gophermart:
     image: gophermart
     build:
@@ -9,13 +10,22 @@ services:
     volumes:
       - ../:/usr/src/app/
     environment:
-      - DATABASE_URI=postgres://postgres:postgres@db:5432/praktikum?sslmode=disable
+      - DATABASE_URI=postgres://postgres:postgres@db_gophermart:5432/praktikum?sslmode=disable
       - MIGRATIONS_PATH=file:///usr/src/app/internal/gophermart/storage/migrations
     ports:
       - "8080:8080"
     depends_on:
-      - db
-    command: sh -c '/usr/src/app/docker/wait-for-it.sh -t 5 db:5432 -- gophermart'
+      - db_gophermart
+    command: sh -c '/usr/src/app/docker/wait-for-it.sh -t 5 db_gophermart:5432 -- gophermart'
+  db_gophermart:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=praktikum
+    ports:
+      - '5432:5432'
+
   accrual:
     image: accrual
     build:
@@ -24,18 +34,19 @@ services:
     volumes:
       - ../:/usr/src/app/
     environment:
-      - DATABASE_URI=postgres://postgres:postgres@db:5432/praktikum?sslmode=disable
-      - MIGRATIONS_PATH=file:///usr/src/app/internal/gophermart/storage/migrations
+      - DATABASE_URI=postgres://postgres:postgres@db_accrual:5432/accrual?sslmode=disable
+      - MIGRATIONS_PATH=file:///usr/src/app/internal/accrual/storage/migrations
     ports:
       - "8081:8080"
     depends_on:
-      - db
-    command: sh -c '/usr/src/app/docker/wait-for-it.sh -t 5 db:5432 -- accrual'
-  db:
+      - db_accrual
+    command: sh -c '/usr/src/app/docker/wait-for-it.sh -t 5 db_accrual:5432 -- accrual'
+
+  db_accrual:
     image: postgres:alpine
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=praktikum
+      - POSTGRES_DB=accrual
     ports:
-      - '5432:5432'
+      - '5433:5432'
