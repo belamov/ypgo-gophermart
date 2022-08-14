@@ -31,7 +31,7 @@ func (c *Config) Init() {
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
-		log.Default().Println("found value in env: " + value)
+		log.Println("found value in env: " + value)
 		return value
 	}
 	return fallback

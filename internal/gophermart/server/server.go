@@ -19,8 +19,8 @@ type Server struct {
 
 func (s *Server) Run() {
 	r := handlers.NewRouter(s.auth, s.ordersProcessor, s.balanceProcessor)
-	log.Default().Println("run address: " + s.config.RunAddress)
-	log.Default().Println("accrual address: " + s.config.AccrualSystemAddress)
+	log.Println("run address: " + s.config.RunAddress)
+	log.Println("accrual address: " + s.config.AccrualSystemAddress)
 	httpServer := &http.Server{
 		Addr:              s.config.RunAddress,
 		Handler:           r,

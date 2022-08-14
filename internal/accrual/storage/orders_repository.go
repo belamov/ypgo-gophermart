@@ -46,7 +46,7 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) e
 	defer func(tx pgx.Tx, ctx context.Context) {
 		err := tx.Rollback(ctx)
 		if err != nil {
-			log.Default().Println(err)
+			log.Println(err)
 		}
 	}(tx, context.Background())
 

@@ -70,7 +70,7 @@ func (o *OrdersProcessor) ValidateOrderID(orderID int) error {
 func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 	err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusProcessing)
 	if err != nil {
-		log.Default().Println(err.Error())
+		log.Println(err.Error())
 		return
 	}
 
@@ -89,7 +89,7 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 		if errors.Is(err, ErrInvalidOrderForAccrual) {
 			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusInvalid)
 			if err != nil {
-				log.Default().Println(err.Error())
+				log.Println(err.Error())
 				return backoff.Permanent(err)
 			}
 			return nil
@@ -97,7 +97,7 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 
 		// unexpected error
 		if err != nil {
-			log.Default().Println(err.Error())
+			log.Println(err.Error())
 			return backoff.Permanent(err)
 		}
 
@@ -112,6 +112,6 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 
 	err = backoff.Retry(orderProcessOperation, backOff)
 	if err != nil {
-		log.Default().Println(err.Error())
+		log.Println(err.Error())
 	}
 }
