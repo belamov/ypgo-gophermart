@@ -35,7 +35,7 @@ func TestHandler_Register(t *testing.T) {
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "",
-				header:     wantHeader{name: "Authorization", value: "Bearer token"},
+				header:     wantHeader{name: "Authorization", value: "BEARER token"},
 			},
 			body: "{\"login\": \"login\", \"password\":\"password\"}",
 		},
@@ -129,7 +129,7 @@ func TestHandler_Login(t *testing.T) {
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "",
-				header:     wantHeader{name: "Authorization", value: "Bearer token"},
+				header:     wantHeader{name: "Authorization", value: "BEARER token"},
 			},
 			body: "{\"login\": \"login\", \"password\":\"password\"}",
 		},
