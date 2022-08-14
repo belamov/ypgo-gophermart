@@ -2,7 +2,7 @@ package config
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -31,7 +31,7 @@ func (c *Config) Init() {
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
-		fmt.Println("found value in env: " + value)
+		log.Default().Println("found value in env: " + value)
 		return value
 	}
 	return fallback
