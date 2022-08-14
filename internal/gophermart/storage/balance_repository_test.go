@@ -98,6 +98,15 @@ func (s *BalanceRepositoryTestSuite) TestGetTotalWithdraws() {
 	assert.Equal(s.T(), 30.0, totalWithdraws)
 }
 
+func (s *BalanceRepositoryTestSuite) TestGetEmptyTotalWithdraws() {
+	max, err := s.usersRepository.CreateNew("max", "password")
+	require.NoError(s.T(), err)
+
+	totalWithdraws, err := s.balanceRepository.GetTotalWithdrawAmount(max.ID)
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), 0.0, totalWithdraws)
+}
+
 func (s *BalanceRepositoryTestSuite) TestGetTotalAccrual() {
 	max, err := s.usersRepository.CreateNew("max", "password")
 	require.NoError(s.T(), err)
@@ -111,6 +120,15 @@ func (s *BalanceRepositoryTestSuite) TestGetTotalAccrual() {
 	totalAccrual, err := s.balanceRepository.GetTotalAccrualAmount(max.ID)
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), 30.0, totalAccrual)
+}
+
+func (s *BalanceRepositoryTestSuite) TestGetEmptyTotalAccrual() {
+	max, err := s.usersRepository.CreateNew("max", "password")
+	require.NoError(s.T(), err)
+
+	totalAccrual, err := s.balanceRepository.GetTotalAccrualAmount(max.ID)
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), 0.0, totalAccrual)
 }
 
 func (s *BalanceRepositoryTestSuite) addAccrual(orderID int, userID int, amount float64) {

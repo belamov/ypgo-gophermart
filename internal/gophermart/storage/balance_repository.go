@@ -2,12 +2,13 @@ package storage
 
 import (
 	"context"
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"database/sql"
 	"log"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type BalanceRepository struct {
@@ -90,13 +91,13 @@ func (repo *BalanceRepository) GetUserWithdrawals(userID int) ([]models.Withdraw
 }
 
 func (repo *BalanceRepository) GetTotalAccrualAmount(userID int) (float64, error) {
-	result := 0.0
+	var result sql.NullFloat64
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
 		log.Println("couldnt acquire connection from pool:")
 		log.Println(err.Error())
-		return result, err
+		return 0, err
 	}
 
 	err = conn.QueryRow(
@@ -111,17 +112,17 @@ func (repo *BalanceRepository) GetTotalAccrualAmount(userID int) (float64, error
 		return 0.0, nil
 	}
 
-	return result, err
+	return result.Float64, err
 }
 
 func (repo *BalanceRepository) GetTotalWithdrawAmount(userID int) (float64, error) {
-	result := 0.0
+	var result sql.NullFloat64
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
 		log.Println("couldnt acquire connection from pool:")
 		log.Println(err.Error())
-		return result, err
+		return 0, err
 	}
 
 	err = conn.QueryRow(
@@ -135,8 +136,8 @@ func (repo *BalanceRepository) GetTotalWithdrawAmount(userID int) (float64, erro
 	if err == pgx.ErrNoRows {
 		return 0.0, nil
 	}
-	
-	return result, err
+
+	return result.Float64, err
 }
 
 func (repo *BalanceRepository) AddWithdraw(orderID int, userID int, amount float64) error {
