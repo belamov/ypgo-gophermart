@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 
@@ -106,6 +107,10 @@ func (repo *BalanceRepository) GetTotalAccrualAmount(userID int) (float64, error
 
 	conn.Release()
 
+	if err == pgx.ErrNoRows {
+		return 0.0, nil
+	}
+
 	return result, err
 }
 
@@ -127,6 +132,10 @@ func (repo *BalanceRepository) GetTotalWithdrawAmount(userID int) (float64, erro
 
 	conn.Release()
 
+	if err == pgx.ErrNoRows {
+		return 0.0, nil
+	}
+	
 	return result, err
 }
 
