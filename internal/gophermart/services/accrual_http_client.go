@@ -67,7 +67,7 @@ func NewAccrualHTTPClient(client *http.Client, serviceURL string, maxRequestsPer
 }
 
 func (c *AccrualHTTPClient) getRequest(orderID int) (*http.Request, error) {
-	url := fmt.Sprintf("%s/%v", c.url, orderID)
+	url := fmt.Sprintf("%s/api/orders/%v", c.url, orderID)
 	return http.NewRequest("GET", url, nil)
 }
 
