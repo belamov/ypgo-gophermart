@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -19,7 +20,8 @@ type Server struct {
 
 func (s *Server) Run() {
 	r := handlers.NewRouter(s.auth, s.ordersProcessor, s.balanceProcessor)
-
+	fmt.Println("run address: " + s.config.RunAddress)
+	fmt.Println("accrual address: " + s.config.AccrualSystemAddress)
 	httpServer := &http.Server{
 		Addr:              s.config.RunAddress,
 		Handler:           r,

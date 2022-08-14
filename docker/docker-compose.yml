@@ -12,6 +12,7 @@ services:
     environment:
       - DATABASE_URI=postgres://postgres:postgres@db_gophermart:5432/praktikum?sslmode=disable
       - MIGRATIONS_PATH=file:///usr/src/app/internal/gophermart/storage/migrations
+      - RUN_ADDRESS=localhost:8080
     ports:
       - "8080:8080"
     depends_on:
