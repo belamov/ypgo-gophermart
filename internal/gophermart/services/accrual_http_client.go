@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -29,6 +31,9 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		log.Println("recieved unexpected response status from accrual service: " + strconv.Itoa(resp.StatusCode))
+		log.Println("recieved unexpected response accrual service: ")
+		log.Println(resp.Body)
 		return 0, errors.New("accrual service returned 500")
 	}
 
