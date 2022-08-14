@@ -34,20 +34,22 @@ func (s *UsersRepositoryTestSuite) SetupSuite() {
 }
 
 func (s *UsersRepositoryTestSuite) TearDownTest() {
-	_, err := s.repo.conn.Exec(context.Background(), "truncate table users cascade")
+	conn, _ := s.repo.pool.Acquire(context.Background())
+	_, err := conn.Exec(context.Background(), "truncate table users cascade")
+	conn.Release()
 	require.NoError(s.T(), err)
 }
 
 func (s *UsersRepositoryTestSuite) exists(user models.User) bool {
 	var exists bool
-
-	err := s.repo.conn.QueryRow(
+	conn, _ := s.repo.pool.Acquire(context.Background())
+	err := conn.QueryRow(
 		context.Background(),
 		"select exists(select 1 from users where login = $1 and password = $2)",
 		user.Login,
 		user.HashedPassword,
 	).Scan(&exists)
-
+	conn.Release()
 	assert.NoError(s.T(), err)
 	return exists
 }

@@ -2,18 +2,37 @@ package storage
 
 import (
 	"context"
+	"github.com/jackc/pgx/v4/pgxpool"
+	"log"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgtype"
-	"github.com/jackc/pgx/v4"
 )
 
 type BalanceRepository struct {
-	conn *pgx.Conn
+	pool *pgxpool.Pool
+}
+
+func NewBalanceRepository(dsn string) (*BalanceRepository, error) {
+	pool, err := pgxpool.Connect(context.Background(), dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	return &BalanceRepository{
+		pool: pool,
+	}, nil
 }
 
 func (repo *BalanceRepository) AddAccrual(orderID int, accrualAmount float64) error {
-	_, err := repo.conn.Exec(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return err
+	}
+
+	_, err = conn.Exec(
 		context.Background(),
 		"update orders set status=$1, accrual=$2 where id=$3",
 		models.OrderStatusProcessed,
@@ -21,17 +40,29 @@ func (repo *BalanceRepository) AddAccrual(orderID int, accrualAmount float64) er
 		orderID,
 	)
 
+	conn.Release()
+
 	return err
 }
 
 func (repo *BalanceRepository) GetUserWithdrawals(userID int) ([]models.Withdrawal, error) {
 	var withdrawals []models.Withdrawal
 
-	rows, err := repo.conn.Query(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	rows, err := conn.Query(
 		context.Background(),
 		"select order_id, user_id, amount, created_at from withdraws where user_id=$1 order by created_at",
 		userID,
 	)
+
+	conn.Release()
+
 	if err != nil {
 		return nil, err
 	}
@@ -57,47 +88,65 @@ func (repo *BalanceRepository) GetUserWithdrawals(userID int) ([]models.Withdraw
 	return withdrawals, nil
 }
 
-func NewBalanceRepository(dsn string) (*BalanceRepository, error) {
-	conn, err := pgx.Connect(context.Background(), dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	return &BalanceRepository{
-		conn: conn,
-	}, nil
-}
-
 func (repo *BalanceRepository) GetTotalAccrualAmount(userID int) (float64, error) {
 	result := 0.0
-	err := repo.conn.QueryRow(
+
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return result, err
+	}
+
+	err = conn.QueryRow(
 		context.Background(),
 		"select sum(accrual) from orders where created_by=$1 group by created_by",
 		userID,
 	).Scan(&result)
+
+	conn.Release()
 
 	return result, err
 }
 
 func (repo *BalanceRepository) GetTotalWithdrawAmount(userID int) (float64, error) {
 	result := 0.0
-	err := repo.conn.QueryRow(
+
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return result, err
+	}
+
+	err = conn.QueryRow(
 		context.Background(),
 		"select sum(amount) from withdraws where user_id=$1 group by user_id",
 		userID,
 	).Scan(&result)
 
+	conn.Release()
+
 	return result, err
 }
 
 func (repo *BalanceRepository) AddWithdraw(orderID int, userID int, amount float64) error {
-	_, err := repo.conn.Exec(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return err
+	}
+
+	_, err = conn.Exec(
 		context.Background(),
 		"insert into withdraws (order_id, user_id, amount) values ($1, $2, $3)",
 		orderID,
 		userID,
 		amount,
 	)
+
+	conn.Release()
 
 	return err
 }

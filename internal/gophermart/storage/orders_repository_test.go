@@ -40,19 +40,27 @@ func (s *OrdersRepositoryTestSuite) SetupSuite() {
 }
 
 func (s *OrdersRepositoryTestSuite) TearDownTest() {
-	_, _ = s.ordersRepository.conn.Exec(context.Background(), "truncate table orders cascade")
-	_, _ = s.ordersRepository.conn.Exec(context.Background(), "truncate table users cascade")
+	conn, err := s.ordersRepository.pool.Acquire(context.Background())
+	require.NoError(s.T(), err)
+	_, _ = conn.Exec(context.Background(), "truncate table orders cascade")
+	_, _ = conn.Exec(context.Background(), "truncate table users cascade")
+	conn.Release()
 }
 
 func (s *OrdersRepositoryTestSuite) exists(order models.Order) bool {
 	var exists bool
 
-	err := s.ordersRepository.conn.QueryRow(
+	conn, err := s.ordersRepository.pool.Acquire(context.Background())
+	require.NoError(s.T(), err)
+
+	err = conn.QueryRow(
 		context.Background(),
 		"select exists(select 1 from orders where id = $1 and created_by = $2)",
 		order.ID,
 		order.CreatedBy,
 	).Scan(&exists)
+
+	conn.Release()
 
 	assert.NoError(s.T(), err)
 	return exists

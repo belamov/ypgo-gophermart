@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"github.com/jackc/pgx/v4/pgxpool"
+	"log"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
@@ -11,27 +13,36 @@ import (
 )
 
 type OrdersRepository struct {
-	conn *pgx.Conn
+	pool *pgxpool.Pool
 }
 
 func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
-	conn, err := pgx.Connect(context.Background(), dsn)
+	pool, err := pgxpool.Connect(context.Background(), dsn)
 	if err != nil {
 		return nil, err
 	}
 
 	return &OrdersRepository{
-		conn: conn,
+		pool: pool,
 	}, nil
 }
 
 func (repo *OrdersRepository) ChangeStatus(order models.Order, status models.OrderStatus) error {
-	_, err := repo.conn.Exec(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return err
+	}
+
+	_, err = conn.Exec(
 		context.Background(),
 		"update orders set status=$1 where id=$2",
 		status,
 		order.ID,
 	)
+
+	conn.Release()
 
 	return err
 }
@@ -39,11 +50,21 @@ func (repo *OrdersRepository) ChangeStatus(order models.Order, status models.Ord
 func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error) {
 	var orders []models.Order
 
-	rows, err := repo.conn.Query(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	rows, err := conn.Query(
 		context.Background(),
 		"select id, created_by, uploaded_at, status, accrual from orders where created_by=$1 order by uploaded_at desc",
 		userID,
 	)
+
+	conn.Release()
+
 	if err != nil {
 		return nil, err
 	}
@@ -70,11 +91,22 @@ func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error)
 func (repo *OrdersRepository) FindByID(orderID int) (models.Order, error) {
 	var order models.Order
 	var accrual sql.NullFloat64
-	err := repo.conn.QueryRow(
+
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return order, err
+	}
+
+	err = conn.QueryRow(
 		context.Background(),
 		"select id, created_by, uploaded_at, status, accrual from orders where id=$1",
 		orderID,
 	).Scan(&order.ID, &order.CreatedBy, &order.UploadedAt, &order.Status, &accrual)
+
+	conn.Release()
+
 	accrualFloat := accrual.Float64
 	order.Accrual = accrualFloat
 
@@ -93,7 +125,14 @@ func (repo *OrdersRepository) CreateNew(orderID int, userID int) (models.Order, 
 		Status:     models.OrderStatusNew,
 	}
 
-	_, err := repo.conn.Exec(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Println("couldnt acquire connection from pool:")
+		log.Println(err.Error())
+		return models.Order{}, err
+	}
+
+	_, err = conn.Exec(
 		context.Background(),
 		"insert into orders (id, created_by, uploaded_at, status) values ($1, $2, $3, $4)",
 		order.ID,
@@ -101,6 +140,8 @@ func (repo *OrdersRepository) CreateNew(orderID int, userID int) (models.Order, 
 		order.UploadedAt,
 		order.Status,
 	)
+
+	conn.Release()
 
 	// todo: handle not unique order id
 

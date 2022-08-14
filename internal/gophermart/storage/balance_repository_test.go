@@ -47,15 +47,18 @@ func (s *BalanceRepositoryTestSuite) SetupSuite() {
 }
 
 func (s *BalanceRepositoryTestSuite) TearDownTest() {
-	_, _ = s.ordersRepository.conn.Exec(context.Background(), "truncate table orders cascade")
-	_, _ = s.ordersRepository.conn.Exec(context.Background(), "truncate table users cascade")
-	_, _ = s.ordersRepository.conn.Exec(context.Background(), "truncate table withdraws cascade")
+	conn, _ := s.balanceRepository.pool.Acquire(context.Background())
+	_, _ = conn.Exec(context.Background(), "truncate table orders cascade")
+	_, _ = conn.Exec(context.Background(), "truncate table users cascade")
+	_, _ = conn.Exec(context.Background(), "truncate table withdraws cascade")
+	conn.Release()
 }
 
 func (s *BalanceRepositoryTestSuite) exists(orderID int, userID int, amount float64) bool {
 	var exists bool
+	conn, _ := s.balanceRepository.pool.Acquire(context.Background())
 
-	err := s.ordersRepository.conn.QueryRow(
+	err := conn.QueryRow(
 		context.Background(),
 		"select exists(select 1 from withdraws where order_id = $1 and user_id = $2 and amount = $3)",
 		orderID,
@@ -63,6 +66,7 @@ func (s *BalanceRepositoryTestSuite) exists(orderID int, userID int, amount floa
 		amount,
 	).Scan(&exists)
 
+	conn.Release()
 	assert.NoError(s.T(), err)
 	return exists
 }
@@ -110,7 +114,9 @@ func (s *BalanceRepositoryTestSuite) TestGetTotalAccrual() {
 }
 
 func (s *BalanceRepositoryTestSuite) addAccrual(orderID int, userID int, amount float64) {
-	_, err := s.balanceRepository.conn.Exec(
+	conn, _ := s.balanceRepository.pool.Acquire(context.Background())
+
+	_, err := conn.Exec(
 		context.Background(),
 		"insert into orders (id, created_by, status, accrual) values ($1, $2, $3, $4)",
 		orderID,
@@ -118,6 +124,9 @@ func (s *BalanceRepositoryTestSuite) addAccrual(orderID int, userID int, amount 
 		models.OrderStatusProcessed,
 		amount,
 	)
+
+	conn.Release()
+
 	require.NoError(s.T(), err)
 }
 
