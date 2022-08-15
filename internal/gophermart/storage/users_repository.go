@@ -3,13 +3,13 @@ package storage
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type UsersRepository struct {

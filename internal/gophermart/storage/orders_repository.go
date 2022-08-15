@@ -3,12 +3,12 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type OrdersRepository struct {
