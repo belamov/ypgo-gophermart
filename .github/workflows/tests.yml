@@ -29,6 +29,7 @@ jobs:
       - run: go test -v ./internal/gophermart/...
         env:
           DATABASE_DSN: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+          MIGRATIONS_PATH: /home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/gophermart/storage/migrations/
   test-accrual:
     runs-on: ubuntu-latest
     services:
@@ -51,3 +52,4 @@ jobs:
       - run: -v ./internal/accrual/...
         env:
           DATABASE_DSN: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+          MIGRATIONS_PATH: /home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/accrual/storage/migrations/
