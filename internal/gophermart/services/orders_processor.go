@@ -41,6 +41,8 @@ func (o *OrderProcessor) RegisterOrderForProcessing(order models.Order) {
 				log.Debug().Int("order_id", order.ID).Msg("ignoring order processing, received stop signal")
 				return
 			case o.ordersToProcessCh <- order:
+				log.Debug().Int("order_id", order.ID).Msg("registering order for processing")
+				return
 			}
 		}
 	}()

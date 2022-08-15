@@ -150,3 +150,37 @@ func TestOrdersProcessor_ItStartsProcessingOrdersThatMustBeProcessed(t *testing.
 
 	cancel()
 }
+
+func TestOrdersProcessor_ItProcessesOrders(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockOrdersStorage := mocks.NewMockOrdersStorage(ctrl)
+	mockAccrual := mocks.NewMockAccrualInfoProvider(ctrl)
+	mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
+
+	ordersProcessor := NewOrderProcessor(mockOrdersStorage, mockAccrual, mockBalance)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	newOrders := []models.Order{
+		{ID: 1, CreatedBy: 1, UploadedAt: time.Now(), Status: models.OrderStatusNew, Accrual: 0},
+		{ID: 2, CreatedBy: 1, UploadedAt: time.Now(), Status: models.OrderStatusNew, Accrual: 0},
+	}
+
+	mockOrdersStorage.EXPECT().GetOrdersForProcessing().Return(nil, nil).Times(1)
+
+	for _, newOrder := range newOrders {
+		mockOrdersStorage.EXPECT().ChangeStatus(newOrder, gomock.Any()).Return(nil).Times(1)
+		mockAccrual.EXPECT().GetAccrualForOrder(ctx, newOrder.ID).Return(5.0, nil).Times(1)
+		mockBalance.EXPECT().AddAccrual(newOrder, 5.0).Return(nil).Times(1)
+	}
+
+	go ordersProcessor.StartProcessing(ctx)
+
+	for _, newOrder := range newOrders {
+		go ordersProcessor.RegisterOrderForProcessing(newOrder)
+	}
+	time.Sleep(time.Millisecond * 5)
+	cancel()
+}
