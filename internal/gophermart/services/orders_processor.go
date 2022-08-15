@@ -32,20 +32,18 @@ func NewOrderProcessor(ordersStorage storage.OrdersStorage, accrualService Accru
 }
 
 func (o *OrderProcessor) RegisterOrderForProcessing(order models.Order) {
-	go func() {
-		for {
-			select {
-			// if stopCh is closed, we will not be sending orders anymore
-			// stopCh closed only in func that reads from ordersToProcessCh
-			case <-o.stopCh:
-				log.Debug().Int("order_id", order.ID).Msg("ignoring order processing, received stop signal")
-				return
-			case o.ordersToProcessCh <- order:
-				log.Debug().Int("order_id", order.ID).Msg("registering order for processing")
-				return
-			}
+	for {
+		select {
+		// if stopCh is closed, we will not be sending orders anymore
+		// stopCh closed only in func that reads from ordersToProcessCh
+		case <-o.stopCh:
+			log.Debug().Int("order_id", order.ID).Msg("ignoring order processing, received stop signal")
+			return
+		case o.ordersToProcessCh <- order:
+			log.Debug().Int("order_id", order.ID).Msg("registering order for processing")
+			return
 		}
-	}()
+	}
 }
 
 func (o *OrderProcessor) StartProcessing(ctx context.Context) {
