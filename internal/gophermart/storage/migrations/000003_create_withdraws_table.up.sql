@@ -1,5 +1,5 @@
 create table if not exists withdraws(
-    order_id int unique not null,
+    order_id bigint unique not null,
     user_id int not null,
     amount float not null,
     created_at timestamp not null default now(),

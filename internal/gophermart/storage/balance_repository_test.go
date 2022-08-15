@@ -76,7 +76,7 @@ func (s *BalanceRepositoryTestSuite) TestAddWithdraw() {
 	require.NoError(s.T(), err)
 
 	withdrawAmount := 100.0
-	orderID := 100
+	orderID := 653663482707861
 
 	err = s.balanceRepository.AddWithdraw(orderID, user.ID, withdrawAmount)
 	assert.NoError(s.T(), err)
