@@ -44,7 +44,8 @@ mocks_generate: ## Generate mocks
 		mockgen -destination=internal/gophermart/mocks/balance_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/gophermart/storage BalanceStorage  &&\
 		\
 		mockgen -destination=internal/accrual/mocks/orders_manager.go -package=mocks github.com/belamov/ypgo-gophermart/internal/accrual/services OrderManagementInterface  &&\
-		mockgen -destination=internal/accrual/mocks/orders_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/accrual/storage OrdersStorage  \
+		mockgen -destination=internal/accrual/mocks/orders_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/accrual/storage OrdersStorage  &&\
+		mockgen -destination=internal/accrual/mocks/rewards_storage.go -package=mocks github.com/belamov/ypgo-gophermart/internal/accrual/storage RewardsStorage  \
 		"
 
 lint:
