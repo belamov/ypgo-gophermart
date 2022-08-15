@@ -98,6 +98,12 @@ func (s *OrdersRepositoryTestSuite) TestCreateNew() {
 	assert.Equal(s.T(), orderID, createdOrder.ID)
 	assert.Equal(s.T(), user.ID, createdOrder.CreatedBy)
 	assert.Equal(s.T(), models.OrderStatusNew, createdOrder.Status)
+
+	createdOrder, err = s.ordersRepository.CreateNew(orderID, user.ID)
+	var notUniqueError *NotUniqueError
+	assert.ErrorAs(s.T(), err, &notUniqueError)
+	assert.Equal(s.T(), "id", notUniqueError.Field)
+	assert.Empty(s.T(), createdOrder.ID)
 }
 
 func (s *OrdersRepositoryTestSuite) TestFindByID() {

@@ -3,6 +3,9 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
@@ -138,7 +141,12 @@ func (repo *OrdersRepository) CreateNew(orderID int, userID int) (models.Order, 
 
 	conn.Release()
 
-	// todo: handle not unique order id
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.UniqueViolation {
+			return models.Order{}, NewNotUniqueError("id", err)
+		}
+	}
 
 	return order, err
 }
