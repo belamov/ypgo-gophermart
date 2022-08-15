@@ -22,11 +22,13 @@ type AccrualHTTPClient struct {
 func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int) (float64, error) {
 	req, err := c.getRequest(orderID)
 	if err != nil {
+		log.Error().Err(err).Msg("received unexpected error while getting accrual info. cant initialize request")
 		return 0, err
 	}
 
 	resp, err := c.doRequest(ctx, req)
 	if err != nil {
+		log.Error().Err(err).Msg("received unexpected error while getting accrual info. cant make request")
 		return 0, err
 	}
 
@@ -47,6 +49,7 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 
 	accrualResp, err := c.parseResponse(resp)
 	if err != nil {
+		log.Error().Err(err).Msg("received unexpected error while getting accrual info. cant parse response")
 		return 0, err
 	}
 
@@ -59,6 +62,7 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 	}
 
 	if !accrualResp.isProcessed() {
+		log.Error().Err(err).Msg("received unexpected error while getting accrual info. unknown order status")
 		return 0, fmt.Errorf("unknown status of order: %s", accrualResp.Status)
 	}
 
