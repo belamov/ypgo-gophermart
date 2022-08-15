@@ -37,8 +37,7 @@ func main() {
 		log.Printf("could not initialize balance repo: %v", err)
 	}
 
-	maxRequestsPerSecond := 50 // todo: move max requests per sec to config
-	accrualService := services.NewAccrualHTTPClient(http.DefaultClient, cfg.AccrualSystemAddress, maxRequestsPerSecond)
+	accrualService := services.NewAccrualHTTPClient(http.DefaultClient, cfg.AccrualSystemAddress, cfg.MaxRequestsPerSecondsToAccrual)
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
 	balanceProcessor := services.NewBalanceProcessor(balanceRepo)
 	ordersProcessor := services.NewOrdersProcessor(ordersRepo, balanceProcessor, accrualService)

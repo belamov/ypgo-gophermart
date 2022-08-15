@@ -13,5 +13,6 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, "", c.AccrualSystemAddress)
 		assert.Equal(t, "", c.DatabaseURI)
 		assert.Equal(t, "secret", c.JWTSecret)
+		assert.Equal(t, 50, c.MaxRequestsPerSecondsToAccrual)
 	})
 }
