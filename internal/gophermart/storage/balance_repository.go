@@ -3,12 +3,12 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"log"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/rs/zerolog/log"
 )
 
 type BalanceRepository struct {
@@ -29,8 +29,7 @@ func NewBalanceRepository(dsn string) (*BalanceRepository, error) {
 func (repo *BalanceRepository) AddAccrual(orderID int, accrualAmount float64) error {
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return err
 	}
 
@@ -52,8 +51,7 @@ func (repo *BalanceRepository) GetUserWithdrawals(userID int) ([]models.Withdraw
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return nil, err
 	}
 
@@ -95,8 +93,7 @@ func (repo *BalanceRepository) GetTotalAccrualAmount(userID int) (float64, error
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return 0, err
 	}
 
@@ -120,8 +117,7 @@ func (repo *BalanceRepository) GetTotalWithdrawAmount(userID int) (float64, erro
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return 0, err
 	}
 
@@ -143,8 +139,7 @@ func (repo *BalanceRepository) GetTotalWithdrawAmount(userID int) (float64, erro
 func (repo *BalanceRepository) AddWithdraw(orderID int, userID int, amount float64) error {
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return err
 	}
 

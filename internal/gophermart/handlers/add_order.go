@@ -3,33 +3,31 @@ package handlers
 import (
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) AddOrder(w http.ResponseWriter, r *http.Request) {
 	reader, err := getDecompressedReader(r)
 	if err != nil {
-		log.Println("unexpected error in add order handler:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("unexpected error in add order handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	rawOrderID, err := io.ReadAll(reader)
 	if err != nil {
-		log.Println("unexpected error in add order handler:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("unexpected error in add order handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	orderID, err := strconv.Atoi(string(rawOrderID))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		http.Error(w, "invalid order id", http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -65,8 +63,7 @@ func handleOrderAddError(err error, userID int, w http.ResponseWriter) {
 		return
 	}
 	if err != nil {
-		log.Println("unexpected error in add order handler:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("unexpected error in add order handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

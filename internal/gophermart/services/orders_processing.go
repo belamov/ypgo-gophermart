@@ -3,12 +3,12 @@ package services
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/belamov/ypgo-gophermart/internal"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 	"github.com/cenkalti/backoff/v4"
+	"github.com/rs/zerolog/log"
 )
 
 type OrdersProcessorInterface interface {
@@ -70,7 +70,11 @@ func (o *OrdersProcessor) ValidateOrderID(orderID int) error {
 func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 	err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusProcessing)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error().
+			Err(err).
+			Int("order_id", order.ID).
+			Int("new_order_status", int(models.OrderStatusProcessing)).
+			Msg("unexpected error while processing order. cant change order status")
 		return
 	}
 
@@ -89,7 +93,11 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 		if errors.Is(err, ErrInvalidOrderForAccrual) {
 			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusInvalid)
 			if err != nil {
-				log.Println(err.Error())
+				log.Error().
+					Err(err).
+					Int("order_id", order.ID).
+					Int("new_order_status", int(models.OrderStatusInvalid)).
+					Msg("unexpected error while processing order. cant change order status")
 				return backoff.Permanent(err)
 			}
 			return nil
@@ -97,7 +105,10 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 
 		// unexpected error
 		if err != nil {
-			log.Println(err.Error())
+			log.Error().
+				Err(err).
+				Int("order_id", order.ID).
+				Msg("received unexpected error from accrual service")
 			return backoff.Permanent(err)
 		}
 
@@ -112,6 +123,9 @@ func (o *OrdersProcessor) ProcessOrder(order models.Order) {
 
 	err = backoff.Retry(orderProcessOperation, backOff)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error().
+			Err(err).
+			Int("order_id", order.ID).
+			Msg("received unexpected error while trying to fetch accrual")
 	}
 }

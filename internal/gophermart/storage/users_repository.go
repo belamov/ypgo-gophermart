@@ -3,13 +3,13 @@ package storage
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/rs/zerolog/log"
 )
 
 type UsersRepository struct {
@@ -35,8 +35,7 @@ func (repo *UsersRepository) CreateNew(login string, password string) (models.Us
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldnt acquire connection from pool")
 		return models.User{}, err
 	}
 
@@ -63,8 +62,7 @@ func (repo *UsersRepository) FindByLogin(login string) (models.User, error) {
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldnt acquire connection from pool")
 		return user, err
 	}
 

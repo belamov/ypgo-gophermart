@@ -23,8 +23,6 @@ type BalanceProcessor struct {
 func (b *BalanceProcessor) RegisterWithdraw(orderID int, userID int, withdrawAmount float64) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	// todo: lock only for given user id
-	// https://pkg.go.dev/golang.org/x/sync@v0.0.0-20220722155255-886fb9371eb4/singleflight
 
 	currentBalance, err := b.getUserBalance(userID)
 	if err != nil {

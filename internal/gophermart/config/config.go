@@ -2,9 +2,10 @@ package config
 
 import (
 	"flag"
-	"log"
 	"os"
 	"strconv"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
@@ -33,14 +34,14 @@ func (c *Config) Init() {
 	flag.StringVar(&c.JWTSecret, "js", getEnv("JWT_SECRET", "some jwt secret token"), "secret token for signing and verifying jwt tokens")
 	maxRequestsFromEnv, err := strconv.Atoi(getEnv("MAX_REQUESTS_PER_SECOND_TO_ACCRUAL", "50"))
 	if err != nil {
-		log.Panic(err)
+		log.Panic().Err(err).Msg("could not initialize user repo")
 	}
 	flag.IntVar(&c.MaxRequestsPerSecondsToAccrual, "mrps", maxRequestsFromEnv, "maximum requests per seconds to accrual service allowed. used for throttling outcoming requests")
 }
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
-		log.Println("found value in env: " + value)
+		log.Info().Msg("found value in env: " + value)
 		return value
 	}
 	return fallback

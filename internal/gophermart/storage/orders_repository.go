@@ -3,12 +3,12 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/rs/zerolog/log"
 )
 
 type OrdersRepository struct {
@@ -29,8 +29,7 @@ func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
 func (repo *OrdersRepository) ChangeStatus(order models.Order, status models.OrderStatus) error {
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return err
 	}
 
@@ -51,8 +50,7 @@ func (repo *OrdersRepository) GetUsersOrders(userID int) ([]models.Order, error)
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return nil, err
 	}
 
@@ -93,8 +91,7 @@ func (repo *OrdersRepository) FindByID(orderID int) (models.Order, error) {
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return order, err
 	}
 
@@ -126,8 +123,7 @@ func (repo *OrdersRepository) CreateNew(orderID int, userID int) (models.Order, 
 
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
-		log.Println("couldnt acquire connection from pool:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return models.Order{}, err
 	}
 

@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) GetUserWithdrawals(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +20,7 @@ func (h *Handler) GetUserWithdrawals(w http.ResponseWriter, r *http.Request) {
 
 	userWithdrawals, err := h.balanceProcessor.GetUserWithdrawals(userID)
 	if err != nil {
-		log.Println("unexpected error in get user withdraws handler:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("unexpected error in get user withdraws handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -47,15 +47,13 @@ func (h *Handler) GetUserWithdrawals(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.Marshal(result)
 	if err != nil {
-		log.Println("unexpected error in get user withdraws handler:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("unexpected error in get user withdraws handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if _, err = w.Write(out); err != nil {
-		log.Println("unexpected error in get user withdraws handler:")
-		log.Println(err.Error())
+		log.Error().Err(err).Msg("unexpected error in get user withdraws handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

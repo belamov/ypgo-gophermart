@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"io"
 	"net/http"
-	"strconv"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/time/rate"
 )
 
@@ -30,11 +30,19 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 		return 0, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		log.Println("recieved unexpected response status from accrual service: " + strconv.Itoa(resp.StatusCode))
-		log.Println("recieved unexpected response accrual service: ")
-		log.Println(resp.Body)
-		return 0, errors.New("accrual service returned 500")
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Error().Err(err).Msg("received unexpected error while getting accrual info. cant read response body")
+			return 0, err
+		}
+		log.Error().
+			Err(err).
+			Str("response", string(bodyBytes)).
+			Int("status_code", resp.StatusCode).
+			Msg("received unexpected response status from accrual service")
+
+		return 0, errors.New("accrual service returned 500: " + string(bodyBytes))
 	}
 
 	accrualResp, err := c.parseResponse(resp)

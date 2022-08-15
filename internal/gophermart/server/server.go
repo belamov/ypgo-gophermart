@@ -1,13 +1,13 @@
 package server
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/handlers"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
+	"github.com/rs/zerolog/log"
 )
 
 type Server struct {
@@ -19,14 +19,12 @@ type Server struct {
 
 func (s *Server) Run() {
 	r := handlers.NewRouter(s.auth, s.ordersProcessor, s.balanceProcessor)
-	log.Println("run address: " + s.config.RunAddress)
-	log.Println("accrual address: " + s.config.AccrualSystemAddress)
 	httpServer := &http.Server{
 		Addr:              s.config.RunAddress,
 		Handler:           r,
 		ReadHeaderTimeout: 1 * time.Second,
 	}
-	log.Fatal(httpServer.ListenAndServe())
+	log.Fatal().Err(httpServer.ListenAndServe()).Msg("server is stopped")
 }
 
 func New(

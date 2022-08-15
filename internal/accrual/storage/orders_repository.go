@@ -2,11 +2,11 @@ package storage
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/jackc/pgx/v4"
+	"github.com/rs/zerolog/log"
 )
 
 type OrdersRepository struct {
@@ -46,7 +46,7 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) e
 	defer func(tx pgx.Tx, ctx context.Context) {
 		err := tx.Rollback(ctx)
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Msg("unexpected error in rollback transaction")
 		}
 	}(tx, context.Background())
 
