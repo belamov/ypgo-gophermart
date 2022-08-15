@@ -49,7 +49,7 @@ jobs:
         with:
           go-version: 1.18.x
       - uses: actions/checkout@v3
-      - run: -v ./internal/accrual/...
+      - run: go test -v ./internal/accrual/...
         env:
           DATABASE_DSN: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
           MIGRATIONS_PATH: /home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/accrual/storage/migrations/
