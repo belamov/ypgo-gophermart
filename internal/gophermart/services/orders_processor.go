@@ -122,6 +122,10 @@ func (o *OrderProcessor) ProcessOrder(ctx context.Context, order models.Order) {
 		}
 
 		// order is proceeded, accrual is available
+		log.Debug().
+			Int("order_id", order.ID).
+			Float64("accrual", accrual).
+			Msg("fetched info about order accrual. received accrual")
 		err = o.BalanceManager.AddAccrual(order, accrual)
 		if err != nil {
 			return backoff.Permanent(err)

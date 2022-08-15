@@ -33,6 +33,7 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 	}
 
 	if resp.StatusCode == http.StatusNoContent {
+		log.Debug().Int("order_id", orderID).Msg("fetching info about order accrual. received 204 status")
 		return 0, ErrOrderIsNotYetProceeded
 	}
 
@@ -58,15 +59,20 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 	}
 
 	if accrualResp.isNotYetProceeded() {
+		log.Debug().Int("order_id", orderID).Msg("fetching info about order accrual. order is not yet proceeded")
 		return 0, ErrOrderIsNotYetProceeded
 	}
 
 	if accrualResp.isInvalid() {
+		log.Debug().Int("order_id", orderID).Msg("fetching info about order accrual. order is invalid")
 		return 0, ErrInvalidOrderForAccrual
 	}
 
 	if !accrualResp.isProcessed() {
-		log.Error().Err(err).Msg("received unexpected error while getting accrual info. unknown order status")
+		log.Error().
+			Str("order_status", accrualResp.Status).
+			Int("order_id", orderID).
+			Msg("received unexpected error while getting accrual info. unknown order status")
 		return 0, fmt.Errorf("unknown status of order: %s", accrualResp.Status)
 	}
 
