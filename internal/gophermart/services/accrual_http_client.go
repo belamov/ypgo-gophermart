@@ -32,7 +32,11 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 		return 0, err
 	}
 
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+	if resp.StatusCode == http.StatusNoContent {
+		return 0, ErrOrderIsNotYetProceeded
+	}
+
+	if resp.StatusCode != http.StatusOK {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Error().Err(err).Msg("received unexpected error while getting accrual info. cant read response body")
