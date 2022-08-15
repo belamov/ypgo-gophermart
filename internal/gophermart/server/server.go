@@ -1,42 +1,40 @@
 package server
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/handlers"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/services"
-	"github.com/rs/zerolog/log"
 )
 
 type Server struct {
-	config           *config.Config
-	auth             services.Auth
-	ordersProcessor  services.OrdersProcessorInterface
-	balanceProcessor services.BalanceProcessorInterface
+	server *http.Server
 }
 
-func (s *Server) Run() {
-	r := handlers.NewRouter(s.auth, s.ordersProcessor, s.balanceProcessor)
-	httpServer := &http.Server{
-		Addr:              s.config.RunAddress,
-		Handler:           r,
-		ReadHeaderTimeout: 1 * time.Second,
-	}
-	log.Fatal().Err(httpServer.ListenAndServe()).Msg("server is stopped")
+func (s *Server) Run() error {
+	return s.server.ListenAndServe()
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.server.Shutdown(ctx)
 }
 
 func New(
 	config *config.Config,
 	auth services.Auth,
-	ordersProcessor services.OrdersProcessorInterface,
+	ordersManager services.OrdersManagerInterface,
 	balanceProcessor services.BalanceProcessorInterface,
 ) *Server {
+	r := handlers.NewRouter(auth, ordersManager, balanceProcessor)
+	httpServer := &http.Server{
+		Addr:              config.RunAddress,
+		Handler:           r,
+		ReadHeaderTimeout: 1 * time.Second,
+	}
 	return &Server{
-		config:           config,
-		auth:             auth,
-		ordersProcessor:  ordersProcessor,
-		balanceProcessor: balanceProcessor,
+		server: httpServer,
 	}
 }

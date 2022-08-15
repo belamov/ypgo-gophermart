@@ -110,7 +110,7 @@ func TestHandler_RegisterWithdraw(t *testing.T) {
 				mockAuth.EXPECT().GetUserID(gomock.Any()).Return(userWithInsufficientBalance.ID).AnyTimes()
 			}
 
-			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
+			mockOrders := mocks.NewMockOrdersManagerInterface(ctrl)
 			validOrderIDInt, err := strconv.Atoi(validOrderID)
 			require.NoError(t, err)
 			invalidOrderIDInt, err := strconv.Atoi(invalidOrderID)

@@ -13,7 +13,7 @@ import (
 
 func NewRouter(
 	auth services.Auth,
-	ordersProcessor services.OrdersProcessorInterface,
+	ordersManager services.OrdersManagerInterface,
 	balanceProcessor services.BalanceProcessorInterface,
 ) chi.Router {
 	r := chi.NewRouter()
@@ -22,7 +22,7 @@ func NewRouter(
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Compress(flate.BestSpeed))
 
-	h := NewHandler(auth, ordersProcessor, balanceProcessor)
+	h := NewHandler(auth, ordersManager, balanceProcessor)
 	r.Post("/api/user/register", h.Register)
 	r.Post("/api/user/login", h.Login)
 	r.Group(func(r chi.Router) {
@@ -40,19 +40,19 @@ func NewRouter(
 type Handler struct {
 	Mux              *chi.Mux
 	auth             services.Auth
-	ordersProcessor  services.OrdersProcessorInterface
+	ordersManager    services.OrdersManagerInterface
 	balanceProcessor services.BalanceProcessorInterface
 }
 
 func NewHandler(
 	auth services.Auth,
-	ordersProcessor services.OrdersProcessorInterface,
+	ordersManager services.OrdersManagerInterface,
 	balanceProcessor services.BalanceProcessorInterface,
 ) *Handler {
 	return &Handler{
 		Mux:              chi.NewMux(),
 		auth:             auth,
-		ordersProcessor:  ordersProcessor,
+		ordersManager:    ordersManager,
 		balanceProcessor: balanceProcessor,
 	}
 }

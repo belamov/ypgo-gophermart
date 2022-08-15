@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/server"
@@ -16,13 +20,59 @@ import (
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Caller().Logger()
 
+	cfg := initConfig()
+	userRepo, ordersRepo, balanceRepo := initRepos(cfg)
+
+	accrualService := services.NewAccrualHTTPClient(http.DefaultClient, cfg.AccrualSystemAddress, cfg.MaxRequestsPerSecondsToAccrual)
+	balanceProcessor := services.NewBalanceProcessor(balanceRepo)
+
+	ordersProcessor := services.NewOrderProcessor(ordersRepo, accrualService, balanceProcessor)
+
+	ordersManager := services.NewOrdersManager(ordersRepo, balanceProcessor, ordersProcessor)
+	auth := services.NewAuth(userRepo, cfg.JWTSecret)
+	srv := server.New(cfg, auth, ordersManager, balanceProcessor)
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		if err := srv.Run(); err != nil && err != http.ErrServerClosed {
+			log.Error().Err(err).Msg("Server couldn't start!")
+		}
+	}()
+	log.Info().Msg("Server Started")
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go ordersProcessor.StartProcessing(ctx)
+
+	<-done
+	log.Info().Msg("Shutting down gracefully")
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error().Err(err).Msg("Server Shutdown Failed")
+	}
+	log.Info().Msg("Server shut down successfully")
+
+	log.Info().Msg("canceling processing orders...")
+
+	cancel()
+	time.Sleep(time.Second * 3) //nolint:gomnd
+
+	log.Info().Msg("goodbye")
+}
+
+func initConfig() *config.Config {
 	cfg := config.New()
 
 	cfg.Init()
 	flag.Parse()
 
 	log.Info().Msgf("config initialized: %+v", cfg)
+	return cfg
+}
 
+func initRepos(cfg *config.Config) (*storage.UsersRepository, *storage.OrdersRepository, *storage.BalanceRepository) {
 	err := storage.RunMigrations(cfg.DatabaseURI)
 	if err != nil {
 		log.Panic().Err(err).Msg("could not run migrations")
@@ -43,11 +93,5 @@ func main() {
 		log.Panic().Err(err).Msg("could not initialize balance repo")
 	}
 
-	accrualService := services.NewAccrualHTTPClient(http.DefaultClient, cfg.AccrualSystemAddress, cfg.MaxRequestsPerSecondsToAccrual)
-	auth := services.NewAuth(userRepo, cfg.JWTSecret)
-	balanceProcessor := services.NewBalanceProcessor(balanceRepo)
-	ordersProcessor := services.NewOrdersProcessor(ordersRepo, balanceProcessor, accrualService)
-	srv := server.New(cfg, auth, ordersProcessor, balanceProcessor)
-
-	srv.Run()
+	return userRepo, ordersRepo, balanceRepo
 }

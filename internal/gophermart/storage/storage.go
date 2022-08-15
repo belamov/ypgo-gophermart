@@ -2,13 +2,13 @@ package storage
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/rs/zerolog/log"
 )
 
 type OrdersStorage interface {
@@ -37,16 +37,18 @@ func RunMigrations(dsn string) error {
 		return err
 	}
 
+	log.Info().Msg("Migrating...")
+
 	err = m.Up()
 	if errors.Is(err, migrate.ErrNoChange) {
-		fmt.Println("Nothing to migrate")
+		log.Info().Msg("Nothing to migrate")
 		return nil
 	}
 	if err != nil {
+		log.Error().Err(err).Msg("Migration failed!")
 		return err
 	}
-
-	fmt.Println("Migrated successfully")
+	log.Info().Msg("Migrated successfully")
 	return nil
 }
 

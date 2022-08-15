@@ -16,7 +16,7 @@ func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersOrders, err := h.ordersProcessor.GetUsersOrders(userID)
+	usersOrders, err := h.ordersManager.GetUsersOrders(userID)
 	if err != nil {
 		log.Error().Err(err).Msg("unexpected error in get user orders handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)

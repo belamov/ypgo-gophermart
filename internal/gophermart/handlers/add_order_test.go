@@ -99,7 +99,7 @@ func TestHandler_AddOrder(t *testing.T) {
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
 			mockAuth.EXPECT().GetUserID(gomock.Any()).Return(tt.user.ID).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
+			mockOrders := mocks.NewMockOrdersManagerInterface(ctrl)
 
 			validOrderIDInt, err := strconv.Atoi(validOrderID)
 			require.NoError(t, err)

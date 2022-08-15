@@ -31,7 +31,7 @@ func (h *Handler) AddOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.ordersProcessor.ValidateOrderID(orderID); err != nil {
+	if err = h.ordersManager.ValidateOrderID(orderID); err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
@@ -42,7 +42,7 @@ func (h *Handler) AddOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.ordersProcessor.AddOrder(orderID, userID)
+	err = h.ordersManager.AddOrder(orderID, userID)
 	if err != nil {
 		handleOrderAddError(err, userID, w)
 		return

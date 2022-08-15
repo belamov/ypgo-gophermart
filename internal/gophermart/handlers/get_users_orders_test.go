@@ -84,7 +84,7 @@ func TestHandler_GetUsersOrders(t *testing.T) {
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
 			mockAuth.EXPECT().GetUserID(gomock.Any()).Return(1).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
+			mockOrders := mocks.NewMockOrdersManagerInterface(ctrl)
 			mockOrders.EXPECT().GetUsersOrders(gomock.Any()).Return(tt.orders, nil).AnyTimes()
 
 			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)

@@ -46,7 +46,7 @@ func TestHandler_GetUserBalance(t *testing.T) {
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
 			mockAuth.EXPECT().GetUserID(gomock.Any()).Return(1).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
+			mockOrders := mocks.NewMockOrdersManagerInterface(ctrl)
 
 			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
 			mockBalance.EXPECT().GetUserTotalWithdrawAmount(gomock.Any()).Return(tt.withdrawn, nil).AnyTimes()

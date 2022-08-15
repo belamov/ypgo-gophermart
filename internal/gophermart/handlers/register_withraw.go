@@ -47,7 +47,7 @@ func (h *Handler) RegisterWithdraw(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.ordersProcessor.ValidateOrderID(orderID); err != nil {
+	if err = h.ordersManager.ValidateOrderID(orderID); err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}

@@ -87,7 +87,7 @@ func TestHandler_Register(t *testing.T) {
 			mockAuth.EXPECT().Register(takenCredentials).Return(models.User{}, services.NewLoginTakenError(takenCredentials.Login, nil)).AnyTimes()
 			mockAuth.EXPECT().GenerateToken(user).Return("token", nil).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
+			mockOrders := mocks.NewMockOrdersManagerInterface(ctrl)
 
 			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
 
@@ -181,8 +181,7 @@ func TestHandler_Login(t *testing.T) {
 			mockAuth.EXPECT().GenerateToken(user).Return("token", nil).AnyTimes()
 			mockAuth.EXPECT().AuthMiddleware().Return(emptyMiddleware).AnyTimes()
 
-			mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
-
+			mockOrders := mocks.NewMockOrdersManagerInterface(ctrl)
 			mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
 
 			r := NewRouter(mockAuth, mockOrders, mockBalance)
@@ -212,7 +211,7 @@ func TestHandler_Middleware(t *testing.T) {
 	mockUsersStorage.EXPECT().CreateNew(gomock.Any(), gomock.Any()).Return(user, nil)
 	auth := services.NewAuth(mockUsersStorage, "secret")
 
-	mockOrders := mocks.NewMockOrdersProcessorInterface(ctrl)
+	mockOrders := mocks.NewMockOrdersManagerInterface(ctrl)
 	mockOrders.EXPECT().GetUsersOrders(gomock.Any()).Return(nil, nil).AnyTimes()
 
 	mockBalance := mocks.NewMockBalanceProcessorInterface(ctrl)
