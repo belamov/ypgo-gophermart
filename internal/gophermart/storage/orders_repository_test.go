@@ -66,22 +66,26 @@ func (s *OrdersRepositoryTestSuite) exists(order models.Order) bool {
 	return exists
 }
 
-func (s *OrdersRepositoryTestSuite) TestCreateNew() {
-	user, err := s.usersRepository.CreateNew("login", "password")
+func (s *OrdersRepositoryTestSuite) add(order models.Order) {
+	conn, err := s.ordersRepository.pool.Acquire(context.Background())
 	require.NoError(s.T(), err)
 
-	orderID := 123
+	_, err = conn.Exec(
+		context.Background(),
+		"insert into orders (id, created_by, uploaded_at, status, accrual) values ($1, $2, $3, $4, $5)",
+		order.ID,
+		order.CreatedBy,
+		order.UploadedAt,
+		order.Status,
+		order.Accrual,
+	)
 
-	createdOrder, err := s.ordersRepository.CreateNew(orderID, user.ID)
-	require.NoError(s.T(), err)
-	expectedCreatedOrder := models.Order{ID: orderID, CreatedBy: user.ID}
-	assert.True(s.T(), s.exists(expectedCreatedOrder))
-	assert.Equal(s.T(), orderID, createdOrder.ID)
-	assert.Equal(s.T(), user.ID, createdOrder.CreatedBy)
-	assert.Equal(s.T(), models.OrderStatusNew, createdOrder.Status)
+	conn.Release()
+
+	assert.NoError(s.T(), err)
 }
 
-func (s *OrdersRepositoryTestSuite) TestCreateNewWithBigId() {
+func (s *OrdersRepositoryTestSuite) TestCreateNew() {
 	user, err := s.usersRepository.CreateNew("login", "password")
 	require.NoError(s.T(), err)
 
@@ -138,6 +142,42 @@ func (s *OrdersRepositoryTestSuite) TestGetUsersOrders() {
 	assert.Equal(s.T(), maxNewOrder.CreatedBy, max.ID)
 	assert.Equal(s.T(), maxOldOrder.ID, maxesOrders[1].ID)
 	assert.Equal(s.T(), maxOldOrder.CreatedBy, max.ID)
+}
+
+func (s *OrdersRepositoryTestSuite) TestGetOrdersForProcessing() {
+	max, err := s.usersRepository.CreateNew("max", "password")
+	require.NoError(s.T(), err)
+
+	newOrder := models.Order{
+		ID:         1,
+		CreatedBy:  max.ID,
+		UploadedAt: time.Now(),
+		Status:     models.OrderStatusNew,
+		Accrual:    0,
+	}
+	processingOrder := models.Order{
+		ID:         2,
+		CreatedBy:  max.ID,
+		UploadedAt: time.Now(),
+		Status:     models.OrderStatusProcessing,
+		Accrual:    0,
+	}
+	processedOrder := models.Order{
+		ID:         3,
+		CreatedBy:  max.ID,
+		UploadedAt: time.Now(),
+		Status:     models.OrderStatusProcessed,
+		Accrual:    0,
+	}
+	s.add(newOrder)
+	s.add(processingOrder)
+	s.add(processedOrder)
+
+	ordersToProcess, err := s.ordersRepository.GetOrdersForProcessing()
+	assert.NoError(s.T(), err)
+	assert.Len(s.T(), ordersToProcess, 1)
+	assert.Equal(s.T(), newOrder.ID, ordersToProcess[0].ID)
+	assert.Equal(s.T(), newOrder.CreatedBy, max.ID)
 }
 
 func (s *OrdersRepositoryTestSuite) TestChangeStatus() {

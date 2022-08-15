@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/server"
@@ -32,6 +31,10 @@ func main() {
 	auth := services.NewAuth(userRepo, cfg.JWTSecret)
 	srv := server.New(cfg, auth, ordersManager, balanceProcessor)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go ordersProcessor.StartProcessing(ctx)
+
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
@@ -41,10 +44,6 @@ func main() {
 		}
 	}()
 	log.Info().Msg("Server Started")
-
-	ctx, cancel := context.WithCancel(context.Background())
-
-	go ordersProcessor.StartProcessing(ctx)
 
 	<-done
 	log.Info().Msg("Shutting down gracefully")
@@ -57,7 +56,6 @@ func main() {
 	log.Info().Msg("canceling processing orders...")
 
 	cancel()
-	time.Sleep(time.Second * 3) //nolint:gomnd
 
 	log.Info().Msg("goodbye")
 }

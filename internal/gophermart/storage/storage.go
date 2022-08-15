@@ -16,6 +16,7 @@ type OrdersStorage interface {
 	FindByID(orderID int) (models.Order, error)
 	GetUsersOrders(userID int) ([]models.Order, error)
 	ChangeStatus(order models.Order, status models.OrderStatus) error
+	GetOrdersForProcessing() ([]models.Order, error)
 }
 
 type UsersStorage interface {

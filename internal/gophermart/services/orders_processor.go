@@ -38,14 +38,28 @@ func (o *OrderProcessor) RegisterOrderForProcessing(order models.Order) {
 			// if stopCh is closed, we will not be sending orders anymore
 			// stopCh closed only in func that reads from ordersToProcessCh
 			case <-o.stopCh:
+				log.Debug().Int("order_id", order.ID).Msg("ignoring order processing, received stop signal")
 				return
 			case o.ordersToProcessCh <- order:
+				log.Debug().Int("order_id", order.ID).Msg("registering order for processing")
 			}
 		}
 	}()
 }
 
 func (o *OrderProcessor) StartProcessing(ctx context.Context) {
+	newOrders, err := o.OrdersStorage.GetOrdersForProcessing()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("cant fetch orders for processing")
+	}
+
+	for _, newOrder := range newOrders {
+		log.Debug().Int("order_io", newOrder.ID).Msg("start processing order")
+		go o.ProcessOrder(ctx, newOrder)
+	}
+
 	for {
 		select {
 		case <-ctx.Done():

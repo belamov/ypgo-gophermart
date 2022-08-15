@@ -142,3 +142,43 @@ func (repo *OrdersRepository) CreateNew(orderID int, userID int) (models.Order, 
 
 	return order, err
 }
+
+func (repo *OrdersRepository) GetOrdersForProcessing() ([]models.Order, error) {
+	var orders []models.Order
+
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return nil, err
+	}
+
+	rows, err := conn.Query(
+		context.Background(),
+		"select id, created_by, uploaded_at, status, accrual from orders where status=$1 order by uploaded_at",
+		models.OrderStatusNew,
+	)
+
+	conn.Release()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		model := models.Order{}
+		var accrual sql.NullFloat64
+		if err = rows.Scan(&model.ID, &model.CreatedBy, &model.UploadedAt, &model.Status, &accrual); err != nil {
+			return nil, err
+		}
+		model.Accrual = accrual.Float64
+		orders = append(orders, model)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return orders, nil
+}
