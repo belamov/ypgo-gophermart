@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/config"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/server"
@@ -54,8 +55,8 @@ func main() {
 	log.Info().Msg("Server shut down successfully")
 
 	log.Info().Msg("canceling processing orders...")
-
 	cancel()
+	time.Sleep(time.Second * 3) //nolint:gomnd
 
 	log.Info().Msg("goodbye")
 }
