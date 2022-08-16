@@ -69,6 +69,11 @@ func (s *OrdersRepositoryTestSuite) TestAddAccrual() {
 
 	err = s.ordersRepository.AddAccrual(order.ID, 10.5)
 	assert.NoError(s.T(), err)
+
+	updatedOrder, err := s.ordersRepository.GetOrder(orderID)
+	require.NoError(s.T(), err)
+	assert.Equal(s.T(), models.OrderStatusProcessed, updatedOrder.Status)
+	assert.Equal(s.T(), 10.5, updatedOrder.Accrual)
 }
 
 func (s *OrdersRepositoryTestSuite) TestChangeStatus() {

@@ -81,6 +81,8 @@ func (p *AccrualProcessor) AddAccrualForOrder(ctx context.Context, order models.
 
 	results := make([]float64, len(order.Items))
 
+	log.Debug().Int("order_id", order.ID).Msg("calculating accrual for order")
+
 	for i, orderItem := range order.Items {
 		i, orderItem := i, orderItem
 		g.Go(func() error {
@@ -93,6 +95,10 @@ func (p *AccrualProcessor) AddAccrualForOrder(ctx context.Context, order models.
 	}
 
 	if err := g.Wait(); err != nil {
+		log.Error().
+			Err(err).
+			Int("order_id", order.ID).
+			Msg("unexpected error while adding accrual to order. some of order items not calculated properly")
 		p.markOrderAsFailed(order)
 		return
 	}
@@ -101,6 +107,8 @@ func (p *AccrualProcessor) AddAccrualForOrder(ctx context.Context, order models.
 	for _, accrualForItem := range results {
 		totalAccrual += accrualForItem
 	}
+
+	log.Debug().Int("order_id", order.ID).Float64("accrual", totalAccrual).Msg("calculated accrual for order")
 
 	err = p.ordersStorage.AddAccrual(order.ID, totalAccrual)
 	if err != nil {
