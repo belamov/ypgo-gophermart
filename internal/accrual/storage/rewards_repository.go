@@ -3,11 +3,11 @@ package storage
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v4"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/rs/zerolog/log"
 )

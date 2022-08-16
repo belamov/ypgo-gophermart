@@ -25,13 +25,13 @@ type RewardsStorage interface {
 }
 
 func RunMigrations(dsn string) error {
-	m, err := migrate.New(getMigrationsPath(), dsn)
+	m, err := migrate.New(getMigrationsPath(), dsn+"&x-migrations-table=accrual_migrations")
 	if err != nil {
 		return err
 	}
 
 	log.Info().Msg("Migrating...")
-
+	m.Version()
 	err = m.Up()
 	if errors.Is(err, migrate.ErrNoChange) {
 		log.Info().Msg("Nothing to migrate")

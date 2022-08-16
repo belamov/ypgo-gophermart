@@ -73,7 +73,7 @@ func (repo *OrdersRepository) AddAccrual(orderID int, accrual float64) error {
 
 	_, err = conn.Exec(
 		context.Background(),
-		"update orders set accrual=$1, status=$2 where id=$3",
+		"update accrual_orders set accrual=$1, status=$2 where id=$3",
 		accrual,
 		models.OrderStatusProcessed,
 		orderID,
@@ -93,7 +93,7 @@ func (repo *OrdersRepository) ChangeStatus(orderID int, status models.OrderStatu
 
 	_, err = conn.Exec(
 		context.Background(),
-		"update orders set status=$1 where id=$2",
+		"update accrual_orders set status=$1 where id=$2",
 		status,
 		orderID,
 	)
@@ -114,7 +114,7 @@ func (repo *OrdersRepository) GetOrdersForProcessing() ([]models.Order, error) {
 
 	rows, err := conn.Query(
 		context.Background(),
-		"select id, created_at, status, accrual from orders where status=$1 order by created_at",
+		"select id, created_at, status, accrual from accrual_orders where status=$1 order by created_at",
 		models.OrderStatusError,
 	)
 
@@ -155,7 +155,7 @@ func (repo *OrdersRepository) GetOrder(orderID int) (models.Order, error) {
 
 	err = conn.QueryRow(
 		context.Background(),
-		"select id, created_at, status, accrual from orders where id=$1",
+		"select id, created_at, status, accrual from accrual_orders where id=$1",
 		orderID,
 	).Scan(&order.ID, &order.CreatedAt, &order.Status, &accrual)
 
@@ -173,7 +173,7 @@ func (repo *OrdersRepository) GetOrder(orderID int) (models.Order, error) {
 func (repo *OrdersRepository) saveOrderItems(conn pgx.Tx, orderID int, items []models.OrderItem) error {
 	_, err := conn.CopyFrom(
 		context.Background(),
-		pgx.Identifier{"order_items"},
+		pgx.Identifier{"accrual_order_items"},
 		[]string{"order_id", "description", "price"},
 		pgx.CopyFromSlice(len(items), func(i int) ([]interface{}, error) {
 			return []interface{}{orderID, items[i].Description, items[i].Price}, nil
@@ -186,7 +186,7 @@ func (repo *OrdersRepository) saveOrderItems(conn pgx.Tx, orderID int, items []m
 func (repo *OrdersRepository) saveOrder(conn pgx.Tx, orderID int) error {
 	_, err := conn.Exec(
 		context.Background(),
-		"insert into orders (id, created_at, status) values ($1, $2, $3)",
+		"insert into accrual_orders (id, created_at, status) values ($1, $2, $3)",
 		orderID,
 		time.Now(),
 		models.OrderStatusNew,

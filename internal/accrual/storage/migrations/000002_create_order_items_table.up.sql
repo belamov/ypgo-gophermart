@@ -1,6 +1,6 @@
-create table if not exists order_items(
+create table if not exists accrual_order_items(
     order_id bigint not null,
     description text not null,
     price decimal not null,
-    constraint fk_order_id foreign key(order_id) references orders(id)
+    constraint fk_order_id foreign key(order_id) references accrual_orders(id)
 )

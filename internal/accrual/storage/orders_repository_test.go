@@ -37,7 +37,7 @@ func (s *OrdersRepositoryTestSuite) SetupSuite() {
 func (s *OrdersRepositoryTestSuite) TearDownTest() {
 	conn, err := s.ordersRepository.pool.Acquire(context.Background())
 	require.NoError(s.T(), err)
-	_, _ = conn.Exec(context.Background(), "truncate table orders cascade")
+	_, _ = conn.Exec(context.Background(), "truncate table accrual_orders cascade")
 	conn.Release()
 }
 
@@ -147,7 +147,7 @@ func (s *OrdersRepositoryTestSuite) add(order models.Order) {
 
 	_, err = conn.Exec(
 		context.Background(),
-		"insert into orders (id, status, accrual, created_at) values ($1, $2, $3, $4)",
+		"insert into accrual_orders (id, status, accrual, created_at) values ($1, $2, $3, $4)",
 		order.ID,
 		order.Status,
 		order.Accrual,

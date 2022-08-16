@@ -59,6 +59,7 @@ func TestHandler_RegisterOrder(t *testing.T) {
 			} else {
 				mockOrderManager.EXPECT().RegisterNewOrder(orderIDInt, tt.items).Return(nil).AnyTimes()
 			}
+			mockOrderManager.EXPECT().ValidateOrderID(gomock.Any()).Return(nil).AnyTimes()
 
 			mockRewards := mocks.NewMockRewardsStorage(ctrl)
 
