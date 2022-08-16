@@ -33,7 +33,7 @@ type BalanceStorage interface {
 }
 
 func RunMigrations(dsn string) error {
-	m, err := migrate.New(getMigrationsPath(), dsn+"&x-migrations-table=accrual_migrations")
+	m, err := migrate.New(getMigrationsPath(), dsn+"&x-migrations-table=gophermart_migrations")
 	if err != nil {
 		return err
 	}

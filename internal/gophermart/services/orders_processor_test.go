@@ -115,10 +115,9 @@ func TestOrdersProcessor_ItProcessingOrdersInBackground(t *testing.T) {
 	}
 
 	mockOrdersStorage.EXPECT().ChangeStatus(gomock.Any(), models.OrderStatusNew).Return(nil).MinTimes(1)
-
+	time.Sleep(time.Millisecond * 500)
 	cancel()
-
-	time.Sleep(time.Millisecond)
+	time.Sleep(time.Millisecond * 500)
 }
 
 func TestOrdersProcessor_ItStartsProcessingOrdersThatMustBeProcessed(t *testing.T) {
