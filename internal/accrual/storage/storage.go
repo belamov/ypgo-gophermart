@@ -12,13 +12,11 @@ import (
 )
 
 type OrdersStorage interface {
-	Exists(orderID int) (bool, error)
 	CreateNew(orderID int, items []models.OrderItem) error
 }
 
 type RewardsStorage interface {
-	Exists(match string) (bool, error)
-	CreateNew(rewardCondition models.RewardCondition) error
+	Save(rewardCondition models.RewardCondition) error
 }
 
 func RunMigrations(dsn string) error {

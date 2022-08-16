@@ -40,20 +40,6 @@ func (s *OrdersRepositoryTestSuite) TearDownTest() {
 	conn.Release()
 }
 
-func (s *OrdersRepositoryTestSuite) TestExists() {
-	orderID := 123
-	orderItems := []models.OrderItem{
-		{Description: "item 1", Price: 10},
-		{Description: "item 2", Price: 20},
-	}
-	err := s.ordersRepository.CreateNew(orderID, orderItems)
-	require.NoError(s.T(), err)
-
-	exists, err := s.ordersRepository.Exists(orderID)
-	assert.NoError(s.T(), err)
-	assert.True(s.T(), exists)
-}
-
 func (s *OrdersRepositoryTestSuite) TestCreateNew() {
 	orderID := 123
 	orderItems := []models.OrderItem{
@@ -62,4 +48,8 @@ func (s *OrdersRepositoryTestSuite) TestCreateNew() {
 	}
 	err := s.ordersRepository.CreateNew(orderID, orderItems)
 	assert.NoError(s.T(), err)
+
+	err = s.ordersRepository.CreateNew(orderID, orderItems)
+	var nue *NotUniqueError
+	assert.ErrorAs(s.T(), err, &nue)
 }

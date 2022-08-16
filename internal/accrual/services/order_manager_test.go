@@ -5,6 +5,7 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,15 +29,13 @@ func TestOrderManager_RegisterNewOrder(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockStorage := mocks.NewMockOrdersStorage(ctrl)
-			mockStorage.EXPECT().Exists(alreadyRegisteredOrderID).Return(true, nil).AnyTimes()
-			mockStorage.EXPECT().Exists(newOrderID).Return(false, nil).AnyTimes()
-			mockStorage.EXPECT().CreateNew(tt.orderID, tt.orderItems).Return(nil).AnyTimes()
-
+			mockStorage.EXPECT().CreateNew(newOrderID, tt.orderItems).Return(nil).AnyTimes()
+			mockStorage.EXPECT().CreateNew(alreadyRegisteredOrderID, tt.orderItems).Return(storage.NewNotUniqueError("id", nil)).AnyTimes()
 			service := NewOrderManager(mockStorage)
 
 			err := service.RegisterNewOrder(tt.orderID, tt.orderItems)
 			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+				assert.ErrorAs(t, err, &tt.wantErr)
 			} else {
 				assert.NoError(t, err)
 			}

@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
+	"github.com/belamov/ypgo-gophermart/internal/accrual/storage"
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,18 +30,13 @@ func (h *Handler) RegisterReward(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exists, err := h.rewardsStorage.Exists(rewardCondition.Match)
-	if err != nil {
-		log.Error().Err(err).Msg("unexpected error in register reward handler:")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if exists {
+	err = h.rewardsStorage.Save(rewardCondition)
+	var notUniqueError *storage.NotUniqueError
+	if errors.As(err, &notUniqueError) {
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
 
-	err = h.rewardsStorage.CreateNew(rewardCondition)
 	if err != nil {
 		log.Error().Err(err).Msg("unexpected error in register reward handler:")
 		http.Error(w, err.Error(), http.StatusInternalServerError)

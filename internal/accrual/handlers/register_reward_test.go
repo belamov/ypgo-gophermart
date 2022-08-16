@@ -8,6 +8,7 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/mocks"
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
+	"github.com/belamov/ypgo-gophermart/internal/accrual/storage"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,6 +17,16 @@ import (
 func TestHandler_RegisterReward(t *testing.T) {
 	type want struct {
 		statusCode int
+	}
+	validReward := models.RewardCondition{
+		Match:      "match",
+		RewardType: "%",
+		Reward:     10.0,
+	}
+	alreadyRegisteredReward := models.RewardCondition{
+		Match:      "registered match",
+		RewardType: "%",
+		Reward:     10.0,
 	}
 	tests := []struct {
 		name   string
@@ -27,22 +38,14 @@ func TestHandler_RegisterReward(t *testing.T) {
 			want: want{
 				statusCode: http.StatusAccepted,
 			},
-			reward: models.RewardCondition{
-				Match:      "match",
-				RewardType: "%",
-				Reward:     10.0,
-			},
+			reward: validReward,
 		},
 		{
 			name: "it responds with 409 when reward is already registered",
 			want: want{
 				statusCode: http.StatusConflict,
 			},
-			reward: models.RewardCondition{
-				Match:      "registered match",
-				RewardType: "%",
-				Reward:     10.0,
-			},
+			reward: alreadyRegisteredReward,
 		},
 	}
 
@@ -54,9 +57,8 @@ func TestHandler_RegisterReward(t *testing.T) {
 			mockOrderManager := mocks.NewMockOrderManagementInterface(ctrl)
 
 			mockRewards := mocks.NewMockRewardsStorage(ctrl)
-			mockRewards.EXPECT().Exists("match").Return(false, nil).AnyTimes()
-			mockRewards.EXPECT().Exists("registered match").Return(true, nil).AnyTimes()
-			mockRewards.EXPECT().CreateNew(tt.reward).Return(nil).AnyTimes()
+			mockRewards.EXPECT().Save(validReward).Return(nil).AnyTimes()
+			mockRewards.EXPECT().Save(alreadyRegisteredReward).Return(storage.NewNotUniqueError("match", nil)).AnyTimes()
 
 			r := NewRouter(mockOrderManager, mockRewards)
 			ts := httptest.NewServer(r)

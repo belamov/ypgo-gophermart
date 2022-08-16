@@ -47,18 +47,3 @@ func (mr *MockOrdersStorageMockRecorder) CreateNew(arg0, arg1 interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockOrdersStorage)(nil).CreateNew), arg0, arg1)
 }
-
-// Exists mocks base method.
-func (m *MockOrdersStorage) Exists(arg0 int) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exists", arg0)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Exists indicates an expected call of Exists.
-func (mr *MockOrdersStorageMockRecorder) Exists(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockOrdersStorage)(nil).Exists), arg0)
-}

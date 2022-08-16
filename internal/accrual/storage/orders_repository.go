@@ -2,9 +2,12 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/rs/zerolog/log"
@@ -66,12 +69,12 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) e
 		}
 	}(tx, context.Background())
 
-	err = repo.saveOrder(orderID)
+	err = repo.saveOrder(conn, orderID)
 	if err != nil {
 		return err
 	}
 
-	err = repo.saveOrderItems(orderID, items)
+	err = repo.saveOrderItems(conn, orderID, items)
 	if err != nil {
 		return err
 	}
@@ -84,14 +87,8 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) e
 	return nil
 }
 
-func (repo *OrdersRepository) saveOrderItems(orderID int, items []models.OrderItem) error {
-	conn, err := repo.pool.Acquire(context.Background())
-	if err != nil {
-		log.Error().Err(err).Msg("couldn't acquire connection from pool")
-		return err
-	}
-
-	_, err = conn.CopyFrom(
+func (repo *OrdersRepository) saveOrderItems(conn *pgxpool.Conn, orderID int, items []models.OrderItem) error {
+	_, err := conn.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"order_items"},
 		[]string{"order_id", "description", "price"},
@@ -100,19 +97,11 @@ func (repo *OrdersRepository) saveOrderItems(orderID int, items []models.OrderIt
 		}),
 	)
 
-	conn.Release()
-
 	return err
 }
 
-func (repo *OrdersRepository) saveOrder(orderID int) error {
-	conn, err := repo.pool.Acquire(context.Background())
-	if err != nil {
-		log.Error().Err(err).Msg("couldn't acquire connection from pool")
-		return err
-	}
-
-	_, err = conn.Exec(
+func (repo *OrdersRepository) saveOrder(conn *pgxpool.Conn, orderID int) error {
+	_, err := conn.Exec(
 		context.Background(),
 		"insert into orders (id, created_at, status) values ($1, $2, $3)",
 		orderID,
@@ -120,7 +109,12 @@ func (repo *OrdersRepository) saveOrder(orderID int) error {
 		models.OrderStatusNew,
 	)
 
-	conn.Release()
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.UniqueViolation {
+			return NewNotUniqueError("id", err)
+		}
+	}
 
 	return err
 }

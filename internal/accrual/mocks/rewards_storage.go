@@ -34,31 +34,16 @@ func (m *MockRewardsStorage) EXPECT() *MockRewardsStorageMockRecorder {
 	return m.recorder
 }
 
-// CreateNew mocks base method.
-func (m *MockRewardsStorage) CreateNew(arg0 models.RewardCondition) error {
+// Save mocks base method.
+func (m *MockRewardsStorage) Save(arg0 models.RewardCondition) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateNew", arg0)
+	ret := m.ctrl.Call(m, "Save", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CreateNew indicates an expected call of CreateNew.
-func (mr *MockRewardsStorageMockRecorder) CreateNew(arg0 interface{}) *gomock.Call {
+// Save indicates an expected call of Save.
+func (mr *MockRewardsStorageMockRecorder) Save(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockRewardsStorage)(nil).CreateNew), arg0)
-}
-
-// Exists mocks base method.
-func (m *MockRewardsStorage) Exists(arg0 string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exists", arg0)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Exists indicates an expected call of Exists.
-func (mr *MockRewardsStorageMockRecorder) Exists(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockRewardsStorage)(nil).Exists), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRewardsStorage)(nil).Save), arg0)
 }

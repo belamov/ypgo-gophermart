@@ -24,16 +24,11 @@ func NewOrderManager(orderStorage storage.OrdersStorage) *OrderManager {
 }
 
 func (o *OrderManager) RegisterNewOrder(orderID int, orderItems []models.OrderItem) error {
-	isOrderRegistered, err := o.orderStorage.Exists(orderID)
-	if err != nil {
-		return err
-	}
-
-	if isOrderRegistered {
+	err := o.orderStorage.CreateNew(orderID, orderItems)
+	var errNotUnique *storage.NotUniqueError
+	if errors.As(err, &errNotUnique) {
 		return ErrOrderIsAlreadyRegistered
 	}
-
-	err = o.orderStorage.CreateNew(orderID, orderItems)
 	if err != nil {
 		return err
 	}
