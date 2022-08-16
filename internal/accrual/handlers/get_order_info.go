@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
-	"net/http"
-	"strconv"
 )
 
 type OrderResponse struct {
@@ -34,6 +35,10 @@ func (h *Handler) GetOrderInfo(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if order.ID == 0 {
+		invalidResponse(w, orderID)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	writeResponse(w, order)
 }
