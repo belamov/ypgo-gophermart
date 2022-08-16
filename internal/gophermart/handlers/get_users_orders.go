@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -43,7 +44,7 @@ func (h *Handler) GetUsersOrders(w http.ResponseWriter, r *http.Request) {
 		result[i] = OrderResponse{
 			Number:     strconv.Itoa(order.ID),
 			Status:     order.Status.String(),
-			Accrual:    order.Accrual,
+			Accrual:    math.Round(order.Accrual*100) / 100, //nolint:gomnd
 			UploadedAt: order.UploadedAt.Format(time.RFC3339),
 		}
 	}

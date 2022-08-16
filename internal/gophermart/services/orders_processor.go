@@ -100,12 +100,12 @@ func (o *OrderProcessor) ProcessOrder(ctx context.Context, order models.Order) {
 
 		// order is proceeded, but no accrual will be added in future
 		if errors.Is(err, ErrInvalidOrderForAccrual) {
-			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusInvalid)
+			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusNew)
 			if err != nil {
 				log.Error().
 					Err(err).
 					Int("order_id", order.ID).
-					Int("new_order_status", int(models.OrderStatusInvalid)).
+					Int("new_order_status", int(models.OrderStatusNew)).
 					Msg("unexpected error while processing order. cant change order status")
 				return backoff.Permanent(err)
 			}
