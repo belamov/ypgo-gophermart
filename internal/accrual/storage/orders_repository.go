@@ -73,8 +73,9 @@ func (repo *OrdersRepository) AddAccrual(orderID int, accrual float64) error {
 
 	_, err = conn.Exec(
 		context.Background(),
-		"update orders set accrual=$1 where id=$2",
+		"update orders set accrual=$1, status=$2 where id=$3",
 		accrual,
+		models.OrderStatusProcessed,
 		orderID,
 	)
 
