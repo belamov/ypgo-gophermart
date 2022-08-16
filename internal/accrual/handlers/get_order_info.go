@@ -2,13 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
+	"net/http"
+	"strconv"
 )
 
 type OrderResponse struct {
@@ -42,11 +40,9 @@ func (h *Handler) GetOrderInfo(w http.ResponseWriter, r *http.Request) {
 
 func invalidResponse(w http.ResponseWriter, orderID int) {
 	order := models.Order{
-		ID:        orderID,
-		CreatedAt: time.Time{},
-		Status:    models.OrderStatusInvalid,
-		Accrual:   0,
-		Items:     nil,
+		ID:      orderID,
+		Status:  models.OrderStatusInvalid,
+		Accrual: 0,
 	}
 	writeResponse(w, order)
 }

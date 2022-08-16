@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -34,8 +35,9 @@ func (h *Handler) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 		Current   float64 `json:"current"`
 		Withdrawn float64 `json:"withdrawn"`
 	}
+	balance := userAccrualAmount - userWithdrawalsAmount
 	result := response{
-		Current:   userAccrualAmount - userWithdrawalsAmount,
+		Current:   math.Round(balance*100) / 100, //nolint:gomnd
 		Withdrawn: userWithdrawalsAmount,
 	}
 
