@@ -31,7 +31,7 @@ func RunMigrations(dsn string) error {
 	}
 
 	log.Info().Msg("Migrating...")
-	m.Version()
+
 	err = m.Up()
 	if errors.Is(err, migrate.ErrNoChange) {
 		log.Info().Msg("Nothing to migrate")
