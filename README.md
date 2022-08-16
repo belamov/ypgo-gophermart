@@ -1,4 +1,4 @@
-[![tests](https://github.com/belamov/ypgo-gophermart/actions/workflows/tests.yml/badge.svg)](https://github.com/belamov/ypgo-gophermart/actions/workflows/tests.yml)
+[![unit tests](https://github.com/belamov/ypgo-gophermart/actions/workflows/tests.yml/badge.svg)](https://github.com/belamov/ypgo-gophermart/actions/workflows/tests.yml)
 [![gophermart integration](https://github.com/belamov/ypgo-gophermart/actions/workflows/gophermart.yml/badge.svg)](https://github.com/belamov/ypgo-gophermart/actions/workflows/gophermart.yml)
 [![accrual integration](https://github.com/belamov/ypgo-gophermart/actions/workflows/accrual.yml/badge.svg)](https://github.com/belamov/ypgo-gophermart/actions/workflows/accrual.yml)
 [![go vet test](https://github.com/belamov/ypgo-gophermart/actions/workflows/statictest.yml/badge.svg)](https://github.com/belamov/ypgo-gophermart/actions/workflows/statictest.yml)
