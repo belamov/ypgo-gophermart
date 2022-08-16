@@ -21,8 +21,8 @@ func (c *Reward) Validate() error {
 		return errors.New("match required")
 	}
 
-	if c.Reward == 0 {
-		return errors.New("reward required")
+	if c.Reward <= 0 {
+		return errors.New("reward must be greater than zero")
 	}
 
 	if c.RewardType == "" {
