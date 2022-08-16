@@ -81,7 +81,7 @@ func TestOrdersProcessor_ProcessOrderInvalidAccrual(t *testing.T) {
 	mockOrdersStorage.EXPECT().ChangeStatus(order, models.OrderStatusProcessing).Return(nil).Times(1)
 	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(0.0, ErrOrderIsNotYetProceeded).Times(1)
 	mockAccrual.EXPECT().GetAccrualForOrder(gomock.Any(), order.ID).Return(0.0, ErrInvalidOrderForAccrual).Times(1)
-	mockOrdersStorage.EXPECT().ChangeStatus(order, models.OrderStatusInvalid).Return(nil).Times(1)
+	mockOrdersStorage.EXPECT().ChangeStatus(order, models.OrderStatusNew).Return(nil).Times(1)
 	ordersProcessor.ProcessOrder(context.Background(), order)
 }
 

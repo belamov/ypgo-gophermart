@@ -98,7 +98,7 @@ func (o *OrderProcessor) ProcessOrder(ctx context.Context, order models.Order) {
 			return err
 		}
 
-		// order is proceeded, but no accrual will be added in future
+		// order is proceeded, but is invalid. we will try to fetch it later, when app is restarted
 		if errors.Is(err, ErrInvalidOrderForAccrual) {
 			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusNew)
 			if err != nil {
