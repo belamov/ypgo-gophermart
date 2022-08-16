@@ -18,11 +18,14 @@ var ErrOrderIsAlreadyRegistered = errors.New("order is already registered")
 
 type OrderManager struct {
 	orderStorage     storage.OrdersStorage
-	accrualProcessor AccrualProcessor
+	accrualProcessor *AccrualProcessor
 }
 
-func NewOrderManager(orderStorage storage.OrdersStorage) *OrderManager {
-	return &OrderManager{orderStorage: orderStorage}
+func NewOrderManager(orderStorage storage.OrdersStorage, accrualProcessor *AccrualProcessor) *OrderManager {
+	return &OrderManager{
+		orderStorage:     orderStorage,
+		accrualProcessor: accrualProcessor,
+	}
 }
 
 func (o *OrderManager) RegisterNewOrder(orderID int, orderItems []models.OrderItem) error {
