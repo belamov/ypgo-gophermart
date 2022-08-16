@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"github.com/rs/zerolog/log"
 	"os"
 )
 
@@ -24,6 +25,7 @@ func (c *Config) Init() {
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
+		log.Info().Msg("found value in env: " + value)
 		return value
 	}
 	return fallback

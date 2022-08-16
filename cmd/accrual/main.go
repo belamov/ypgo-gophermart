@@ -19,6 +19,7 @@ import (
 
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Caller().Logger()
+	log.Info().Msgf("hello")
 
 	cfg := initConfig()
 	rewardsRepo, ordersRepo := initRepos(cfg)
