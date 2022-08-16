@@ -1,4 +1,4 @@
-name: accrual
+name: accrual integration
 
 on:
   workflow_dispatch:
