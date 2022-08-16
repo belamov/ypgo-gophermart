@@ -36,7 +36,7 @@ func TestHandler_RegisterReward(t *testing.T) {
 		{
 			name: "it accepts new reward",
 			want: want{
-				statusCode: http.StatusAccepted,
+				statusCode: http.StatusOK,
 			},
 			reward: validReward,
 		},
