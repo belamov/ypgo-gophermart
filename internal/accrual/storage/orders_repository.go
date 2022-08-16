@@ -30,14 +30,7 @@ func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
 }
 
 func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) (models.Order, error) {
-	conn, err := repo.pool.Acquire(context.Background())
-	defer conn.Release()
-	if err != nil {
-		log.Error().Err(err).Msg("couldn't acquire connection from pool")
-		return models.Order{}, err
-	}
-
-	tx, err := conn.Begin(context.Background())
+	tx, err := repo.pool.Begin(context.Background())
 	if err != nil {
 		return models.Order{}, err
 	}
@@ -50,12 +43,12 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) (
 		}
 	}(tx, context.Background())
 
-	err = repo.saveOrder(conn, orderID)
+	err = repo.saveOrder(tx, orderID)
 	if err != nil {
 		return models.Order{}, err
 	}
 
-	err = repo.saveOrderItems(conn, orderID, items)
+	err = repo.saveOrderItems(tx, orderID, items)
 	if err != nil {
 		return models.Order{}, err
 	}
@@ -173,7 +166,7 @@ func (repo *OrdersRepository) GetOrder(orderID int) (models.Order, error) {
 	return order, err
 }
 
-func (repo *OrdersRepository) saveOrderItems(conn *pgxpool.Conn, orderID int, items []models.OrderItem) error {
+func (repo *OrdersRepository) saveOrderItems(conn pgx.Tx, orderID int, items []models.OrderItem) error {
 	_, err := conn.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"order_items"},
@@ -186,7 +179,7 @@ func (repo *OrdersRepository) saveOrderItems(conn *pgxpool.Conn, orderID int, it
 	return err
 }
 
-func (repo *OrdersRepository) saveOrder(conn *pgxpool.Conn, orderID int) error {
+func (repo *OrdersRepository) saveOrder(conn pgx.Tx, orderID int) error {
 	_, err := conn.Exec(
 		context.Background(),
 		"insert into orders (id, created_at, status) values ($1, $2, $3)",
