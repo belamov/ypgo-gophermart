@@ -34,7 +34,10 @@ func (s *OrdersRepositoryTestSuite) SetupSuite() {
 }
 
 func (s *OrdersRepositoryTestSuite) TearDownTest() {
-	_, _ = s.ordersRepository.conn.Exec(context.Background(), "truncate table orders cascade")
+	conn, err := s.ordersRepository.pool.Acquire(context.Background())
+	require.NoError(s.T(), err)
+	_, _ = conn.Exec(context.Background(), "truncate table orders cascade")
+	conn.Release()
 }
 
 func (s *OrdersRepositoryTestSuite) TestExists() {

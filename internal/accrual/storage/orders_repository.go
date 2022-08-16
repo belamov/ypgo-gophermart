@@ -6,38 +6,54 @@ import (
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/rs/zerolog/log"
 )
 
 type OrdersRepository struct {
-	conn *pgx.Conn
-}
-
-func (repo *OrdersRepository) Exists(orderID int) (bool, error) {
-	var exists bool
-
-	err := repo.conn.QueryRow(
-		context.Background(),
-		"select exists(select 1 from orders where id = $1)",
-		orderID,
-	).Scan(&exists)
-
-	return exists, err
+	pool *pgxpool.Pool
 }
 
 func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
-	conn, err := pgx.Connect(context.Background(), dsn)
+	pool, err := pgxpool.Connect(context.Background(), dsn)
 	if err != nil {
 		return nil, err
 	}
 
 	return &OrdersRepository{
-		conn: conn,
+		pool: pool,
 	}, nil
 }
 
+func (repo *OrdersRepository) Exists(orderID int) (bool, error) {
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return true, err
+	}
+
+	var exists bool
+
+	err = conn.QueryRow(
+		context.Background(),
+		"select exists(select 1 from orders where id = $1)",
+		orderID,
+	).Scan(&exists)
+
+	conn.Release()
+
+	return exists, err
+}
+
 func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) error {
-	tx, err := repo.conn.Begin(context.Background())
+	conn, err := repo.pool.Acquire(context.Background())
+	defer conn.Release()
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return err
+	}
+
+	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		return err
 	}
@@ -69,7 +85,13 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) e
 }
 
 func (repo *OrdersRepository) saveOrderItems(orderID int, items []models.OrderItem) error {
-	_, err := repo.conn.CopyFrom(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return err
+	}
+
+	_, err = conn.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"order_items"},
 		[]string{"order_id", "description", "price"},
@@ -77,16 +99,28 @@ func (repo *OrdersRepository) saveOrderItems(orderID int, items []models.OrderIt
 			return []interface{}{orderID, items[i].Description, items[i].Price}, nil
 		}),
 	)
+
+	conn.Release()
+
 	return err
 }
 
 func (repo *OrdersRepository) saveOrder(orderID int) error {
-	_, err := repo.conn.Exec(
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return err
+	}
+
+	_, err = conn.Exec(
 		context.Background(),
 		"insert into orders (id, created_at, status) values ($1, $2, $3)",
 		orderID,
 		time.Now(),
 		models.OrderStatusNew,
 	)
+
+	conn.Release()
+
 	return err
 }

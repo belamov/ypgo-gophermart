@@ -4,21 +4,21 @@ import (
 	"context"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type RewardsRepository struct {
-	conn *pgx.Conn
+	pool *pgxpool.Pool
 }
 
 func NewRewardsRepository(dsn string) (*RewardsRepository, error) {
-	conn, err := pgx.Connect(context.Background(), dsn)
+	pool, err := pgxpool.Connect(context.Background(), dsn)
 	if err != nil {
 		return nil, err
 	}
 
 	return &RewardsRepository{
-		conn: conn,
+		pool: pool,
 	}, nil
 }
 
