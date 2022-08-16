@@ -38,8 +38,6 @@ func (h *Handler) GetOrderInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	writeResponse(w, order)
-
-	w.WriteHeader(http.StatusAccepted)
 }
 
 func invalidResponse(w http.ResponseWriter, orderID int) {
