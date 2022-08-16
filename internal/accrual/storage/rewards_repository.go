@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"errors"
+	"github.com/jackc/pgx/v4"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/jackc/pgconn"
@@ -69,6 +70,10 @@ func (repo *RewardsRepository) GetMatchingReward(orderItem models.OrderItem) (mo
 	).Scan(&reward.Reward, &reward.RewardType)
 
 	conn.Release()
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return reward, nil
+	}
 
 	return reward, err
 }
