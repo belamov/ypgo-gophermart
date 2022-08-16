@@ -34,14 +34,17 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) (
 	if err != nil {
 		return models.Order{}, err
 	}
+
 	// Rollback is safe to call even if the tx is already closed, so if
 	// the tx commits successfully, this is a no-op
-	defer func(tx pgx.Tx, ctx context.Context) {
+	defer func(ctx context.Context, tx pgx.Tx) {
 		err := tx.Rollback(ctx)
 		if err != nil {
-			log.Error().Err(err).Msg("unexpected error in rollback transaction")
+			if !errors.Is(err, pgx.ErrTxClosed) {
+				log.Error().Err(err).Msg("unexpected error in rollback transaction")
+			}
 		}
-	}(tx, context.Background())
+	}(context.Background(), tx)
 
 	err = repo.saveOrder(tx, orderID)
 	if err != nil {

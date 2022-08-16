@@ -37,6 +37,11 @@ func (h *Handler) RegisterOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = h.orderManager.ValidateOrderID(orderID); err != nil {
+		http.Error(w, "wrong order id", http.StatusBadRequest)
+		return
+	}
+
 	err = h.orderManager.RegisterNewOrder(orderID, newOrder.Items)
 	if errors.Is(err, services.ErrOrderIsAlreadyRegistered) {
 		w.WriteHeader(http.StatusConflict)
