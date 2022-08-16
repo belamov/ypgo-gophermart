@@ -35,10 +35,10 @@ func (h *Handler) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 		Current   float64 `json:"current"`
 		Withdrawn float64 `json:"withdrawn"`
 	}
-	balance := userAccrualAmount - userWithdrawalsAmount
+	balance := round(userAccrualAmount) - round(userWithdrawalsAmount)
 	result := response{
-		Current:   math.Round(balance*100) / 100, //nolint:gomnd
-		Withdrawn: userWithdrawalsAmount,
+		Current:   balance,
+		Withdrawn: round(userWithdrawalsAmount),
 	}
 
 	out, err := json.Marshal(result)
@@ -52,4 +52,8 @@ func (h *Handler) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("unexpected error in get user balance handler")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func round(amount float64) float64 {
+	return math.Round(amount*100) / 100 //nolint:gomnd
 }
