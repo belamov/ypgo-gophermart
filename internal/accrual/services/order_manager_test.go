@@ -29,8 +29,8 @@ func TestOrderManager_RegisterNewOrder(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockStorage := mocks.NewMockOrdersStorage(ctrl)
-			mockStorage.EXPECT().CreateNew(newOrderID, tt.orderItems).Return(nil).AnyTimes()
-			mockStorage.EXPECT().CreateNew(alreadyRegisteredOrderID, tt.orderItems).Return(storage.NewNotUniqueError("id", nil)).AnyTimes()
+			mockStorage.EXPECT().CreateNew(newOrderID, tt.orderItems).Return(models.Order{}, nil).AnyTimes()
+			mockStorage.EXPECT().CreateNew(alreadyRegisteredOrderID, tt.orderItems).Return(models.Order{}, storage.NewNotUniqueError("id", nil)).AnyTimes()
 			service := NewOrderManager(mockStorage)
 
 			err := service.RegisterNewOrder(tt.orderID, tt.orderItems)

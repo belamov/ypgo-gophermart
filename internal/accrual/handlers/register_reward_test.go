@@ -18,12 +18,12 @@ func TestHandler_RegisterReward(t *testing.T) {
 	type want struct {
 		statusCode int
 	}
-	validReward := models.RewardCondition{
+	validReward := models.Reward{
 		Match:      "match",
 		RewardType: "%",
 		Reward:     10.0,
 	}
-	alreadyRegisteredReward := models.RewardCondition{
+	alreadyRegisteredReward := models.Reward{
 		Match:      "registered match",
 		RewardType: "%",
 		Reward:     10.0,
@@ -31,7 +31,7 @@ func TestHandler_RegisterReward(t *testing.T) {
 	tests := []struct {
 		name   string
 		want   want
-		reward models.RewardCondition
+		reward models.Reward
 	}{
 		{
 			name: "it accepts new reward",

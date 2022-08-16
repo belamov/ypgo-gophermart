@@ -41,7 +41,7 @@ func (s *RewardsRepositoryTestSuite) TearDownTest() {
 }
 
 func (s *RewardsRepositoryTestSuite) TestSave() {
-	reward := models.RewardCondition{
+	reward := models.Reward{
 		Match:      "match",
 		Reward:     1.5,
 		RewardType: "pt",
@@ -52,4 +52,30 @@ func (s *RewardsRepositoryTestSuite) TestSave() {
 	err = s.rewardsRepo.Save(reward)
 	var nue *NotUniqueError
 	assert.ErrorAs(s.T(), err, &nue)
+}
+
+func (s *RewardsRepositoryTestSuite) TestMatch() {
+	reward := models.Reward{
+		Match:      "Bork",
+		Reward:     1.5,
+		RewardType: "pt",
+	}
+	err := s.rewardsRepo.Save(reward)
+	assert.NoError(s.T(), err)
+	err = s.rewardsRepo.Save(models.Reward{
+		Match:      "Work",
+		Reward:     2,
+		RewardType: "%",
+	})
+	assert.NoError(s.T(), err)
+
+	orderItem := models.OrderItem{
+		Description: "чайник bork черный",
+		Price:       1000,
+	}
+
+	matchedReward, err := s.rewardsRepo.GetMatchingReward(orderItem)
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), reward.RewardType, matchedReward.RewardType)
+	assert.Equal(s.T(), reward.Reward, matchedReward.Reward)
 }

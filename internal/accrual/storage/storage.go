@@ -12,11 +12,15 @@ import (
 )
 
 type OrdersStorage interface {
-	CreateNew(orderID int, items []models.OrderItem) error
+	CreateNew(orderID int, items []models.OrderItem) (models.Order, error)
+	AddAccrual(orderID int, accrual float64) error
+	ChangeStatus(orderID int, status models.OrderStatus) error
+	GetOrdersForProcessing() ([]models.Order, error)
 }
 
 type RewardsStorage interface {
-	Save(rewardCondition models.RewardCondition) error
+	Save(rewardCondition models.Reward) error
+	GetMatchingReward(orderItem models.OrderItem) (models.Reward, error)
 }
 
 func RunMigrations(dsn string) error {

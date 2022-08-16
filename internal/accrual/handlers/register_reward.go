@@ -18,7 +18,7 @@ func (h *Handler) RegisterReward(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var rewardCondition models.RewardCondition
+	var rewardCondition models.Reward
 
 	if err := json.NewDecoder(reader).Decode(&rewardCondition); err != nil {
 		http.Error(w, "cannot decode json", http.StatusBadRequest)

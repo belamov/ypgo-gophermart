@@ -34,16 +34,60 @@ func (m *MockOrdersStorage) EXPECT() *MockOrdersStorageMockRecorder {
 	return m.recorder
 }
 
-// CreateNew mocks base method.
-func (m *MockOrdersStorage) CreateNew(arg0 int, arg1 []models.OrderItem) error {
+// AddAccrual mocks base method.
+func (m *MockOrdersStorage) AddAccrual(arg0 int, arg1 float64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateNew", arg0, arg1)
+	ret := m.ctrl.Call(m, "AddAccrual", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
+}
+
+// AddAccrual indicates an expected call of AddAccrual.
+func (mr *MockOrdersStorageMockRecorder) AddAccrual(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccrual", reflect.TypeOf((*MockOrdersStorage)(nil).AddAccrual), arg0, arg1)
+}
+
+// ChangeStatus mocks base method.
+func (m *MockOrdersStorage) ChangeStatus(arg0 int, arg1 models.OrderStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeStatus", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangeStatus indicates an expected call of ChangeStatus.
+func (mr *MockOrdersStorageMockRecorder) ChangeStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeStatus", reflect.TypeOf((*MockOrdersStorage)(nil).ChangeStatus), arg0, arg1)
+}
+
+// CreateNew mocks base method.
+func (m *MockOrdersStorage) CreateNew(arg0 int, arg1 []models.OrderItem) (models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateNew", arg0, arg1)
+	ret0, _ := ret[0].(models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateNew indicates an expected call of CreateNew.
 func (mr *MockOrdersStorageMockRecorder) CreateNew(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockOrdersStorage)(nil).CreateNew), arg0, arg1)
+}
+
+// GetOrdersForProcessing mocks base method.
+func (m *MockOrdersStorage) GetOrdersForProcessing() ([]models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrdersForProcessing")
+	ret0, _ := ret[0].([]models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrdersForProcessing indicates an expected call of GetOrdersForProcessing.
+func (mr *MockOrdersStorageMockRecorder) GetOrdersForProcessing() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersForProcessing", reflect.TypeOf((*MockOrdersStorage)(nil).GetOrdersForProcessing))
 }

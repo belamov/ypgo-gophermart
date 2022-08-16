@@ -7,4 +7,5 @@ const (
 	OrderStatusProcessing
 	OrderStatusInvalid
 	OrderStatusProcessed
+	OrderStatusError
 )

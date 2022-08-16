@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
@@ -28,37 +29,17 @@ func NewOrdersRepository(dsn string) (*OrdersRepository, error) {
 	}, nil
 }
 
-func (repo *OrdersRepository) Exists(orderID int) (bool, error) {
-	conn, err := repo.pool.Acquire(context.Background())
-	if err != nil {
-		log.Error().Err(err).Msg("couldn't acquire connection from pool")
-		return true, err
-	}
-
-	var exists bool
-
-	err = conn.QueryRow(
-		context.Background(),
-		"select exists(select 1 from orders where id = $1)",
-		orderID,
-	).Scan(&exists)
-
-	conn.Release()
-
-	return exists, err
-}
-
-func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) error {
+func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) (models.Order, error) {
 	conn, err := repo.pool.Acquire(context.Background())
 	defer conn.Release()
 	if err != nil {
 		log.Error().Err(err).Msg("couldn't acquire connection from pool")
-		return err
+		return models.Order{}, err
 	}
 
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
-		return err
+		return models.Order{}, err
 	}
 	// Rollback is safe to call even if the tx is already closed, so if
 	// the tx commits successfully, this is a no-op
@@ -71,20 +52,98 @@ func (repo *OrdersRepository) CreateNew(orderID int, items []models.OrderItem) e
 
 	err = repo.saveOrder(conn, orderID)
 	if err != nil {
-		return err
+		return models.Order{}, err
 	}
 
 	err = repo.saveOrderItems(conn, orderID, items)
 	if err != nil {
-		return err
+		return models.Order{}, err
 	}
 
 	err = tx.Commit(context.Background())
 	if err != nil {
+		return models.Order{}, err
+	}
+
+	return models.Order{ID: orderID, Items: items}, nil
+}
+
+func (repo *OrdersRepository) AddAccrual(orderID int, accrual float64) error {
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
 		return err
 	}
 
-	return nil
+	_, err = conn.Exec(
+		context.Background(),
+		"update orders set accrual=$1 where id=$2",
+		accrual,
+		orderID,
+	)
+
+	conn.Release()
+
+	return err
+}
+
+func (repo *OrdersRepository) ChangeStatus(orderID int, status models.OrderStatus) error {
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return err
+	}
+
+	_, err = conn.Exec(
+		context.Background(),
+		"update orders set status=$1 where id=$2",
+		status,
+		orderID,
+	)
+
+	conn.Release()
+
+	return err
+}
+
+func (repo *OrdersRepository) GetOrdersForProcessing() ([]models.Order, error) {
+	var orders []models.Order
+
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return nil, err
+	}
+
+	rows, err := conn.Query(
+		context.Background(),
+		"select id, created_at, status, accrual from orders where status=$1 order by created_at",
+		models.OrderStatusError,
+	)
+
+	conn.Release()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		model := models.Order{}
+		var accrual sql.NullFloat64
+		if err = rows.Scan(&model.ID, &model.CreatedAt, &model.Status, &accrual); err != nil {
+			return nil, err
+		}
+		model.Accrual = accrual.Float64
+		orders = append(orders, model)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return orders, nil
 }
 
 func (repo *OrdersRepository) saveOrderItems(conn *pgxpool.Conn, orderID int, items []models.OrderItem) error {

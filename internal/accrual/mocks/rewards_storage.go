@@ -34,8 +34,23 @@ func (m *MockRewardsStorage) EXPECT() *MockRewardsStorageMockRecorder {
 	return m.recorder
 }
 
+// GetMatchingReward mocks base method.
+func (m *MockRewardsStorage) GetMatchingReward(arg0 models.OrderItem) (models.Reward, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMatchingReward", arg0)
+	ret0, _ := ret[0].(models.Reward)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMatchingReward indicates an expected call of GetMatchingReward.
+func (mr *MockRewardsStorageMockRecorder) GetMatchingReward(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMatchingReward", reflect.TypeOf((*MockRewardsStorage)(nil).GetMatchingReward), arg0)
+}
+
 // Save mocks base method.
-func (m *MockRewardsStorage) Save(arg0 models.RewardCondition) error {
+func (m *MockRewardsStorage) Save(arg0 models.Reward) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", arg0)
 	ret0, _ := ret[0].(error)

@@ -16,7 +16,8 @@ type OrderManagementInterface interface {
 var ErrOrderIsAlreadyRegistered = errors.New("order is already registered")
 
 type OrderManager struct {
-	orderStorage storage.OrdersStorage
+	orderStorage     storage.OrdersStorage
+	accrualProcessor AccrualProcessor
 }
 
 func NewOrderManager(orderStorage storage.OrdersStorage) *OrderManager {
@@ -24,7 +25,7 @@ func NewOrderManager(orderStorage storage.OrdersStorage) *OrderManager {
 }
 
 func (o *OrderManager) RegisterNewOrder(orderID int, orderItems []models.OrderItem) error {
-	err := o.orderStorage.CreateNew(orderID, orderItems)
+	order, err := o.orderStorage.CreateNew(orderID, orderItems)
 	var errNotUnique *storage.NotUniqueError
 	if errors.As(err, &errNotUnique) {
 		return ErrOrderIsAlreadyRegistered
@@ -33,7 +34,7 @@ func (o *OrderManager) RegisterNewOrder(orderID int, orderItems []models.OrderIt
 		return err
 	}
 
-	// todo: order processing
+	go o.accrualProcessor.RegisterOrderForProcessing(order)
 
 	return nil
 }

@@ -26,7 +26,7 @@ func NewRewardsRepository(dsn string) (*RewardsRepository, error) {
 	}, nil
 }
 
-func (repo *RewardsRepository) Save(rewardCondition models.RewardCondition) error {
+func (repo *RewardsRepository) Save(rewardCondition models.Reward) error {
 	conn, err := repo.pool.Acquire(context.Background())
 	if err != nil {
 		log.Error().Err(err).Msg("couldn't acquire connection from pool")
@@ -51,4 +51,24 @@ func (repo *RewardsRepository) Save(rewardCondition models.RewardCondition) erro
 	}
 
 	return err
+}
+
+func (repo *RewardsRepository) GetMatchingReward(orderItem models.OrderItem) (models.Reward, error) {
+	var reward models.Reward
+
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return models.Reward{}, err
+	}
+
+	err = conn.QueryRow(
+		context.Background(),
+		"select reward, reward_type from rewards where $1 ILIKE '%' || match || '%' limit 1",
+		orderItem.Description,
+	).Scan(&reward.Reward, &reward.RewardType)
+
+	conn.Release()
+
+	return reward, err
 }
