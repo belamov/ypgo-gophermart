@@ -66,7 +66,7 @@ func TestHandler_RegisterReward(t *testing.T) {
 
 			requestJSON, err := json.Marshal(tt.reward)
 			require.NoError(t, err)
-			result := testRequest(
+			result, _ := testRequest(
 				t,
 				ts,
 				http.MethodPost,

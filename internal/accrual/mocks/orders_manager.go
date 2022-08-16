@@ -34,6 +34,21 @@ func (m *MockOrderManagementInterface) EXPECT() *MockOrderManagementInterfaceMoc
 	return m.recorder
 }
 
+// GetOrderInfo mocks base method.
+func (m *MockOrderManagementInterface) GetOrderInfo(arg0 int) (models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrderInfo", arg0)
+	ret0, _ := ret[0].(models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrderInfo indicates an expected call of GetOrderInfo.
+func (mr *MockOrderManagementInterfaceMockRecorder) GetOrderInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderInfo", reflect.TypeOf((*MockOrderManagementInterface)(nil).GetOrderInfo), arg0)
+}
+
 // RegisterNewOrder mocks base method.
 func (m *MockOrderManagementInterface) RegisterNewOrder(arg0 int, arg1 []models.OrderItem) error {
 	m.ctrl.T.Helper()

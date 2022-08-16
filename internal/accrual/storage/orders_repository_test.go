@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
 	"github.com/stretchr/testify/assert"
@@ -83,6 +84,23 @@ func (s *OrdersRepositoryTestSuite) TestChangeStatus() {
 	assert.NoError(s.T(), err)
 }
 
+func (s *OrdersRepositoryTestSuite) TestGetOrder() {
+	newOrder := models.Order{
+		ID:        1,
+		CreatedAt: time.Now(),
+		Status:    models.OrderStatusNew,
+		Accrual:   14.3,
+		Items:     nil,
+	}
+	s.add(newOrder)
+
+	order, err := s.ordersRepository.GetOrder(newOrder.ID)
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), newOrder.ID, order.ID)
+	assert.Equal(s.T(), newOrder.Accrual, order.Accrual)
+	assert.Equal(s.T(), newOrder.Status, order.Status)
+}
+
 func (s *OrdersRepositoryTestSuite) TestGetOrdersForProcessing() {
 	newOrder := models.Order{
 		ID:     1,
@@ -119,10 +137,11 @@ func (s *OrdersRepositoryTestSuite) add(order models.Order) {
 
 	_, err = conn.Exec(
 		context.Background(),
-		"insert into orders (id, status, accrual) values ($1, $2, $3)",
+		"insert into orders (id, status, accrual, created_at) values ($1, $2, $3, $4)",
 		order.ID,
 		order.Status,
 		order.Accrual,
+		order.CreatedAt,
 	)
 
 	conn.Release()

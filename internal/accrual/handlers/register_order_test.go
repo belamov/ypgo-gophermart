@@ -72,7 +72,7 @@ func TestHandler_RegisterOrder(t *testing.T) {
 			}
 			requestJSON, err := json.Marshal(request)
 			require.NoError(t, err)
-			result := testRequest(
+			result, _ := testRequest(
 				t,
 				ts,
 				http.MethodPost,

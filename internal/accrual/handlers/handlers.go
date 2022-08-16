@@ -23,6 +23,10 @@ func NewRouter(orderManager services.OrderManagementInterface, rewardsStorage st
 
 	r.Post("/api/orders", h.RegisterOrder)
 	r.Post("/api/goods", h.RegisterReward)
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.Throttle(100)) //nolint:gomnd
+		r.Get("/api/orders/{order}", h.GetOrderInfo)
+	})
 
 	return r
 }

@@ -146,6 +146,33 @@ func (repo *OrdersRepository) GetOrdersForProcessing() ([]models.Order, error) {
 	return orders, nil
 }
 
+func (repo *OrdersRepository) GetOrder(orderID int) (models.Order, error) {
+	var order models.Order
+	var accrual sql.NullFloat64
+
+	conn, err := repo.pool.Acquire(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("couldn't acquire connection from pool")
+		return order, err
+	}
+
+	err = conn.QueryRow(
+		context.Background(),
+		"select id, created_at, status, accrual from orders where id=$1",
+		orderID,
+	).Scan(&order.ID, &order.CreatedAt, &order.Status, &accrual)
+
+	conn.Release()
+
+	order.Accrual = accrual.Float64
+
+	if err == pgx.ErrNoRows {
+		return models.Order{}, nil
+	}
+
+	return order, err
+}
+
 func (repo *OrdersRepository) saveOrderItems(conn *pgxpool.Conn, orderID int, items []models.OrderItem) error {
 	_, err := conn.CopyFrom(
 		context.Background(),

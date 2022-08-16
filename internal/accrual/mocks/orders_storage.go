@@ -77,6 +77,21 @@ func (mr *MockOrdersStorageMockRecorder) CreateNew(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockOrdersStorage)(nil).CreateNew), arg0, arg1)
 }
 
+// GetOrder mocks base method.
+func (m *MockOrdersStorage) GetOrder(arg0 int) (models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrder", arg0)
+	ret0, _ := ret[0].(models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrder indicates an expected call of GetOrder.
+func (mr *MockOrdersStorageMockRecorder) GetOrder(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrder", reflect.TypeOf((*MockOrdersStorage)(nil).GetOrder), arg0)
+}
+
 // GetOrdersForProcessing mocks base method.
 func (m *MockOrdersStorage) GetOrdersForProcessing() ([]models.Order, error) {
 	m.ctrl.T.Helper()

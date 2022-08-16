@@ -16,6 +16,7 @@ type OrdersStorage interface {
 	AddAccrual(orderID int, accrual float64) error
 	ChangeStatus(orderID int, status models.OrderStatus) error
 	GetOrdersForProcessing() ([]models.Order, error)
+	GetOrder(orderID int) (models.Order, error)
 }
 
 type RewardsStorage interface {

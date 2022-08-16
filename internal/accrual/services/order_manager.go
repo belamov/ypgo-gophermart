@@ -11,6 +11,7 @@ import (
 type OrderManagementInterface interface {
 	ValidateOrderID(orderID int) error
 	RegisterNewOrder(orderID int, orderItems []models.OrderItem) error
+	GetOrderInfo(orderID int) (models.Order, error)
 }
 
 var ErrOrderIsAlreadyRegistered = errors.New("order is already registered")
@@ -49,4 +50,8 @@ func (o *OrderManager) ValidateOrderID(orderID int) error {
 	}
 
 	return nil
+}
+
+func (o *OrderManager) GetOrderInfo(orderID int) (models.Order, error) {
+	return o.orderStorage.GetOrder(orderID)
 }
