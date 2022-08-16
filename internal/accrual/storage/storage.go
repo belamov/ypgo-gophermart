@@ -49,7 +49,7 @@ func RunMigrations(dsn string) error {
 func getMigrationsPath() string {
 	path := os.Getenv("MIGRATIONS_PATH")
 	if path == "" {
-		path = "file://./migrations"
+		path = "file://internal/accrual/storage/migrations"
 	}
 	return path
 }
