@@ -98,14 +98,14 @@ func (o *OrderProcessor) ProcessOrder(ctx context.Context, order models.Order) {
 			return err
 		}
 
-		// order is proceeded, but is invalid. we will try to fetch it later, when app is restarted
+		// order is proceeded, but is invalid. no accrual will be added
 		if errors.Is(err, ErrInvalidOrderForAccrual) {
-			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusNew)
+			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusInvalid)
 			if err != nil {
 				log.Error().
 					Err(err).
 					Int("order_id", order.ID).
-					Int("new_order_status", int(models.OrderStatusNew)).
+					Int("new_order_status", int(models.OrderStatusInvalid)).
 					Msg("unexpected error while processing order. cant change order status")
 				return backoff.Permanent(err)
 			}

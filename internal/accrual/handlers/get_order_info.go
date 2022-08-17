@@ -36,7 +36,7 @@ func (h *Handler) GetOrderInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if order.ID == 0 {
-		invalidResponse(w, orderID)
+		registeredResponse(w, orderID)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -47,6 +47,15 @@ func invalidResponse(w http.ResponseWriter, orderID int) {
 	order := models.Order{
 		ID:      orderID,
 		Status:  models.OrderStatusInvalid,
+		Accrual: 0,
+	}
+	writeResponse(w, order)
+}
+
+func registeredResponse(w http.ResponseWriter, orderID int) {
+	order := models.Order{
+		ID:      orderID,
+		Status:  models.OrderStatusNew,
 		Accrual: 0,
 	}
 	writeResponse(w, order)
