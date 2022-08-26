@@ -17,7 +17,7 @@ type OrderResponse struct {
 }
 
 func (h *Handler) GetOrderInfo(w http.ResponseWriter, r *http.Request) {
-	orderIDRaw := chi.URLParam(r, "order")
+	orderIDRaw := chi.URLParam(r, "order") //nolint:contextcheck
 	orderID, err := strconv.Atoi(orderIDRaw)
 	if err != nil {
 		http.Error(w, "wrong order id", http.StatusBadRequest)

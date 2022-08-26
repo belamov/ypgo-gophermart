@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -33,7 +33,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	resp, err = client.Do(req)
 	require.NoError(t, err)
 
-	respBody, err = ioutil.ReadAll(resp.Body)
+	respBody, err = io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 
 	require.NoError(t, err)
