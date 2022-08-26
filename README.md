@@ -5,4 +5,8 @@
 [![lint](https://github.com/belamov/ypgo-gophermart/actions/workflows/lint.yml/badge.svg)](https://github.com/belamov/ypgo-gophermart/actions/workflows/lint.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/belamov/ypgo-gophermart)](https://goreportcard.com/report/github.com/belamov/ypgo-gophermart)
 
-TODO
+## Выпускной проект на курсе [продвинутый go-разработчик](https://practicum.yandex.ru/promo/go-profession)
+
+техническое задание можно посмотреть [тут](SPECIFICATION.md)
+
+это расширенное задание, которое нужно было делать в команде, но я реализовал все самостоятельно
