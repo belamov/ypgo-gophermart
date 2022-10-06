@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/belamov/ypgo-gophermart/internal/accrual/models"
+	"github.com/belamov/ypgo-gophermart/internal/gophermart/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -31,6 +32,9 @@ func (s *OrdersRepositoryTestSuite) SetupSuite() {
 	s.ordersRepository = ordersRepository
 
 	err = RunMigrations(dsn)
+	require.NoError(s.T(), err)
+
+	err = storage.RunMigrations(dsn)
 	require.NoError(s.T(), err)
 }
 

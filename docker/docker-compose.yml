@@ -11,7 +11,8 @@ services:
       - ../:/usr/src/app/
     environment:
       - DATABASE_URI=postgres://postgres:postgres@db_gophermart:5432/praktikum?sslmode=disable
-      - MIGRATIONS_PATH=file:///usr/src/app/internal/gophermart/storage/migrations
+      - MIGRATIONS_PATH_GOPHERMART=file:///usr/src/app/internal/gophermart/storage/migrations
+      - MIGRATIONS_PATH_ACCRUAL=file:///usr/src/app/internal/accrual/storage/migrations
       - RUN_ADDRESS=localhost:8080
     ports:
       - "8080:8080"
@@ -36,7 +37,8 @@ services:
       - ../:/usr/src/app/
     environment:
       - DATABASE_URI=postgres://postgres:postgres@db_accrual:5433/accrual?sslmode=disable
-      - MIGRATIONS_PATH=file:///usr/src/app/internal/accrual/storage/migrations
+      - MIGRATIONS_PATH_ACCRUAL=file:///usr/src/app/internal/accrual/storage/migrations
+      - MIGRATIONS_PATH_GOPHERMART=file:///usr/src/app/internal/gophermart/storage/migrations
     ports:
       - "8081:8080"
     depends_on:

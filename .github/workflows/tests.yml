@@ -32,7 +32,8 @@ jobs:
           cat $GITHUB_WORKSPACE/profile.cov_tmp | grep -v "mocks" | grep -v "_mock" > $GITHUB_WORKSPACE/profile.cov
         env:
           DATABASE_DSN: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
-          MIGRATIONS_PATH: file:///home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/gophermart/storage/migrations/
+          MIGRATIONS_PATH_ACCRUAL: file:///home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/accrual/storage/migrations/
+          MIGRATIONS_PATH_GOPHERMART: file:///home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/gophermart/storage/migrations/
       - name: install goveralls
         run: GO111MODULE=off go get -u github.com/mattn/goveralls
       - name: submit coverage

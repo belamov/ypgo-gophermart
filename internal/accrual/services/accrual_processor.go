@@ -86,15 +86,15 @@ func (p *AccrualProcessor) AddAccrualForOrder(ctx context.Context, order models.
 	for i, orderItem := range order.Items {
 		i, orderItem := i, orderItem
 		g.Go(func() error {
-			result, err := p.calculateAccrualForOrderItem(ctx, orderItem)
-			if err == nil {
+			result, errCalculation := p.calculateAccrualForOrderItem(ctx, orderItem)
+			if errCalculation == nil {
 				results[i] = result
 			}
-			return err
+			return errCalculation
 		})
 	}
 
-	if err := g.Wait(); err != nil {
+	if err = g.Wait(); err != nil {
 		log.Error().
 			Err(err).
 			Int("order_id", order.ID).

@@ -30,8 +30,8 @@ func TestHandler_RegisterReward(t *testing.T) {
 	}
 	tests := []struct {
 		name   string
-		want   want
 		reward models.Reward
+		want   want
 	}{
 		{
 			name: "it accepts new reward",

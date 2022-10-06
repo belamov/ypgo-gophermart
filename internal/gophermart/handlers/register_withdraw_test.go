@@ -30,8 +30,8 @@ func TestHandler_RegisterWithdraw(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		want    want
 		orderID string
+		want    want
 		amount  float64
 		userID  int
 	}{

@@ -12,8 +12,8 @@ const (
 
 type Reward struct {
 	Match      string  `json:"match"`
-	Reward     float64 `json:"reward"`
 	RewardType string  `json:"reward_type"`
+	Reward     float64 `json:"reward"`
 }
 
 func (c *Reward) Validate() error {

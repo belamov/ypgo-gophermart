@@ -32,8 +32,8 @@ func (h *Handler) GetUserWithdrawals(w http.ResponseWriter, r *http.Request) {
 
 	type WithdrawalResponse struct {
 		Order     string  `json:"order"`
-		Sum       float64 `json:"sum"`
 		CreatedAt string  `json:"processed_at"`
+		Sum       float64 `json:"sum"`
 	}
 	result := make([]WithdrawalResponse, len(userWithdrawals))
 

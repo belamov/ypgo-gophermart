@@ -71,7 +71,7 @@ func (a *JWTAuth) Login(credentials models.Credentials) (models.User, error) {
 		return models.User{}, NewInvalidCredentialsError(credentials, err)
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(credentials.Password)); err != nil {
+	if err = bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(credentials.Password)); err != nil {
 		return models.User{}, NewInvalidCredentialsError(credentials, err)
 	}
 

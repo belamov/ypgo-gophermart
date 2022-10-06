@@ -3,9 +3,9 @@ package models
 import "time"
 
 type Order struct {
+	UploadedAt time.Time
 	ID         int
 	CreatedBy  int
-	UploadedAt time.Time
 	Status     OrderStatus
 	Accrual    float64
 }

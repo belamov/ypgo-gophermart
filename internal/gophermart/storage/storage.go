@@ -54,7 +54,7 @@ func RunMigrations(dsn string) error {
 }
 
 func getMigrationsPath() string {
-	path := os.Getenv("MIGRATIONS_PATH")
+	path := os.Getenv("MIGRATIONS_PATH_GOPHERMART")
 	if path == "" {
 		path = "file://internal/gophermart/storage/migrations"
 	}

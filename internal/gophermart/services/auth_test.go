@@ -165,14 +165,14 @@ func TestAuth_GenerateToken(t *testing.T) {
 			if !tt.wantErr {
 				assert.NoError(t, err)
 
-				token, err := auth.tokenAuth.Decode(tokenString)
-				assert.NoError(t, err)
+				token, errDecode := auth.tokenAuth.Decode(tokenString)
+				assert.NoError(t, errDecode)
 
 				userClaim, ok := token.Get("user_id")
 				assert.True(t, ok)
 
-				parsedTokenString, err := strconv.Atoi(fmt.Sprintf("%v", userClaim))
-				require.NoError(t, err)
+				parsedTokenString, errParse := strconv.Atoi(fmt.Sprintf("%v", userClaim))
+				require.NoError(t, errParse)
 				assert.Equal(t, tt.user.ID, parsedTokenString)
 
 				assert.Greater(t, token.Expiration(), time.Now())

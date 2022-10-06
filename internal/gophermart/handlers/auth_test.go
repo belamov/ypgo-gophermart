@@ -23,14 +23,14 @@ func TestHandler_Register(t *testing.T) {
 		value string
 	}
 	type want struct {
-		statusCode int
-		body       string
 		header     wantHeader
+		body       string
+		statusCode int
 	}
 	tests := []struct {
 		name string
-		want want
 		body string
+		want want
 	}{
 		{
 			name: "with valid credentials",
@@ -117,14 +117,14 @@ func TestHandler_Login(t *testing.T) {
 		value string
 	}
 	type want struct {
-		statusCode int
-		body       string
 		header     wantHeader
+		body       string
+		statusCode int
 	}
 	tests := []struct {
 		name string
-		want want
 		body string
+		want want
 	}{
 		{
 			name: "with valid credentials",
