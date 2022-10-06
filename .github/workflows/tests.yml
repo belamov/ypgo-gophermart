@@ -1,13 +1,13 @@
 name: unit tests
 
 on:
-#  pull_request:
+  pull_request:
   push:
     branches:
       - master
 
 jobs:
-  test-gophermart:
+  test:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -26,30 +26,16 @@ jobs:
         with:
           go-version: 1.18.x
       - uses: actions/checkout@v3
-      - run: go test -v ./internal/gophermart/...
+      - name: run tests with coverage
+        run: |
+          go test -v -covermode=count -coverprofile=$GITHUB_WORKSPACE/profile.cov_tmp ./...
+          cat $GITHUB_WORKSPACE/profile.cov_tmp | grep -v "mocks" | grep -v "_mock" > $GITHUB_WORKSPACE/profile.cov
         env:
           DATABASE_DSN: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
           MIGRATIONS_PATH: file:///home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/gophermart/storage/migrations/
-  test-accrual:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
+      - name: install goveralls
+        run: GO111MODULE=off go get -u github.com/mattn/goveralls
+      - name: submit coverage
+        run: $(go env GOPATH)/bin/goveralls -service="github" -coverprofile=$GITHUB_WORKSPACE/profile.cov
         env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    steps:
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 1.18.x
-      - uses: actions/checkout@v3
-      - run: go test -v ./internal/accrual/...
-        env:
-          DATABASE_DSN: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
-          MIGRATIONS_PATH: file:///home/runner/work/ypgo-gophermart/ypgo-gophermart/internal/accrual/storage/migrations/
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
