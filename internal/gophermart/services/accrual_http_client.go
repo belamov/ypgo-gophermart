@@ -38,13 +38,12 @@ func (c *AccrualHTTPClient) GetAccrualForOrder(ctx context.Context, orderID int)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Error().Err(err).Msg("received unexpected error while getting accrual info. cant read response body")
-			return 0, err
+		bodyBytes, errRead := io.ReadAll(resp.Body)
+		if errRead != nil {
+			log.Error().Err(errRead).Msg("received unexpected error while getting accrual info. cant read response body")
+			return 0, errRead
 		}
 		log.Error().
-			Err(err).
 			Str("response", string(bodyBytes)).
 			Int("status_code", resp.StatusCode).
 			Msg("received unexpected response status from accrual service")

@@ -15,10 +15,10 @@ func TestOrderManager_RegisterNewOrder(t *testing.T) {
 	newOrderID := 2
 
 	tests := []struct {
-		name       string
-		orderID    int
-		orderItems []models.OrderItem
 		wantErr    error
+		name       string
+		orderItems []models.OrderItem
+		orderID    int
 	}{
 		{name: "it registering new order", orderID: newOrderID, orderItems: nil, wantErr: nil},
 		{name: "it doesnt register existing order", orderID: alreadyRegisteredOrderID, orderItems: nil, wantErr: ErrOrderIsAlreadyRegistered},

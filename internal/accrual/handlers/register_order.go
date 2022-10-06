@@ -26,7 +26,7 @@ func (h *Handler) RegisterOrder(w http.ResponseWriter, r *http.Request) {
 
 	var newOrder newOrderRequest
 
-	if err := json.NewDecoder(reader).Decode(&newOrder); err != nil {
+	if err = json.NewDecoder(reader).Decode(&newOrder); err != nil {
 		http.Error(w, "cannot decode json", http.StatusBadRequest)
 		return
 	}

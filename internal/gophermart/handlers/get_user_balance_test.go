@@ -17,9 +17,9 @@ func TestHandler_GetUserBalance(t *testing.T) {
 	}
 	tests := []struct {
 		name      string
+		want      want
 		withdrawn float64
 		accrual   float64
-		want      want
 	}{
 		{
 			name:      "it returns user balance",

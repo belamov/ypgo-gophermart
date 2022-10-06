@@ -21,12 +21,12 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	var credentials models.Credentials
 
-	if err := json.NewDecoder(reader).Decode(&credentials); err != nil {
+	if err = json.NewDecoder(reader).Decode(&credentials); err != nil {
 		http.Error(w, "cannot decode json", http.StatusBadRequest)
 		return
 	}
 
-	if err := credentials.Validate(); err != nil {
+	if err = credentials.Validate(); err != nil {
 		http.Error(w, fmt.Sprintf("invalid credentials: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
@@ -65,12 +65,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var credentials models.Credentials
 
-	if err := json.NewDecoder(reader).Decode(&credentials); err != nil {
+	if err = json.NewDecoder(reader).Decode(&credentials); err != nil {
 		http.Error(w, "cannot decode json", http.StatusBadRequest)
 		return
 	}
 
-	if err := credentials.Validate(); err != nil {
+	if err = credentials.Validate(); err != nil {
 		http.Error(w, fmt.Sprintf("invalid credentials: %s", err.Error()), http.StatusBadRequest)
 		return
 	}

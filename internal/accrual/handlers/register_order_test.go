@@ -21,11 +21,11 @@ func TestHandler_RegisterOrder(t *testing.T) {
 		statusCode int
 	}
 	tests := []struct {
+		err     error
 		name    string
-		want    want
 		orderID string
 		items   []models.OrderItem
-		err     error
+		want    want
 	}{
 		{
 			name: "it accepts new order",

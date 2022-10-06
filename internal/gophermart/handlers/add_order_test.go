@@ -28,9 +28,9 @@ func TestHandler_AddOrder(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
+		orderID string
 		user    models.User
 		want    want
-		orderID string
 	}{
 		{
 			name: "it accepts valid order id from authenticated user",

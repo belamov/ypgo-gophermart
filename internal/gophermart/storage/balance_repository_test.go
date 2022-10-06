@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/belamov/ypgo-gophermart/internal/accrual/storage"
 	"github.com/belamov/ypgo-gophermart/internal/gophermart/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,6 +44,9 @@ func (s *BalanceRepositoryTestSuite) SetupSuite() {
 	s.balanceRepository = balanceRepository
 
 	err = RunMigrations(dsn)
+	require.NoError(s.T(), err)
+
+	err = storage.RunMigrations(dsn)
 	require.NoError(s.T(), err)
 }
 

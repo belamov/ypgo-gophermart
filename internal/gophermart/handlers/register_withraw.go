@@ -24,7 +24,7 @@ func (h *Handler) RegisterWithdraw(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var request RegisterWithdrawRequest
-	if err := json.NewDecoder(reader).Decode(&request); err != nil {
+	if err = json.NewDecoder(reader).Decode(&request); err != nil {
 		http.Error(w, "cannot decode json", http.StatusBadRequest)
 		return
 	}

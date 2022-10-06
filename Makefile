@@ -51,14 +51,16 @@ mocks_generate: ## Generate mocks
 lint:
 	$(docker_bin) run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:latest golangci-lint run
 
+fieldaligment-fix:
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) fieldalignment -fix ./... || true
+
 gofumpt:
 	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) gofumpt -l -w .
 
 test: ## Execute tests
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./internal/gophermart/...
-	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm accrual go test -v ./internal/accrual/...
+	$(docker_compose_bin) --file "$(docker_compose_yml)" run --rm $(app_container_name) go test -v ./...
 
-check: build gofumpt lint test  ## Run tests and code analysis
+check: build fieldaligment-fix gofumpt lint test  ## Run tests and code analysis
 
 # Prompt to continue
 prompt-continue:

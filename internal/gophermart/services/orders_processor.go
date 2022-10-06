@@ -91,34 +91,34 @@ func (o *OrderProcessor) ProcessOrder(ctx context.Context, order models.Order) {
 	backOff := backoff.WithContext(exponentialBackOff, ctx)
 
 	addAccrualForOrder := func() error {
-		accrual, err := o.AccrualService.GetAccrualForOrder(ctx, order.ID)
+		accrual, errAccrual := o.AccrualService.GetAccrualForOrder(ctx, order.ID)
 
 		// order is not yet proceeded, we will try to fetch it later
-		if errors.Is(err, ErrOrderIsNotYetProceeded) {
-			return err
+		if errors.Is(errAccrual, ErrOrderIsNotYetProceeded) {
+			return errAccrual
 		}
 
 		// order is proceeded, but is invalid. no accrual will be added
-		if errors.Is(err, ErrInvalidOrderForAccrual) {
-			err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusInvalid)
-			if err != nil {
+		if errors.Is(errAccrual, ErrInvalidOrderForAccrual) {
+			errChangeStatus := o.OrdersStorage.ChangeStatus(order, models.OrderStatusInvalid)
+			if errChangeStatus != nil {
 				log.Error().
-					Err(err).
+					Err(errChangeStatus).
 					Int("order_id", order.ID).
 					Int("new_order_status", int(models.OrderStatusInvalid)).
 					Msg("unexpected error while processing order. cant change order status")
-				return backoff.Permanent(err)
+				return backoff.Permanent(errChangeStatus)
 			}
 			return nil
 		}
 
 		// unexpected error
-		if err != nil {
+		if errAccrual != nil {
 			log.Error().
-				Err(err).
+				Err(errAccrual).
 				Int("order_id", order.ID).
 				Msg("received unexpected error from accrual service")
-			return backoff.Permanent(err)
+			return backoff.Permanent(errAccrual)
 		}
 
 		// order is proceeded, accrual is available
@@ -147,7 +147,7 @@ func (o *OrderProcessor) ProcessOrder(ctx context.Context, order models.Order) {
 				Msg("received unexpected error while processing order. returning order to NEW status")
 		}
 
-		err := o.OrdersStorage.ChangeStatus(order, models.OrderStatusNew)
+		err = o.OrdersStorage.ChangeStatus(order, models.OrderStatusNew)
 		if err != nil {
 			log.Error().
 				Err(err).
